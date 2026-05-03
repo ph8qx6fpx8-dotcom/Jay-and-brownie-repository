@@ -19,6 +19,8 @@ from predictor.data_sources import (
     MutualArtClient,
 )
 from predictor.model import fit_hedonic
+from predictor.scrapers.apify import DEFAULT_ACTOR_ID, ApifySource
+from predictor.scrapers.christies import ChristiesSource, CloudflareBlocked
 
 load_dotenv()
 
@@ -42,12 +44,25 @@ def _load_csv_dataframe(uploaded_file, use_sample: bool) -> pd.DataFrame | None:
     return None
 
 
-def _api_dataframe(use_artnet: bool, use_mutualart: bool, artist: str) -> pd.DataFrame:
+def _api_dataframe(
+    use_artnet: bool,
+    use_mutualart: bool,
+    use_christies: bool,
+    christies_pages: int,
+    use_apify: bool,
+    apify_actor: str,
+    apify_max_items: int,
+    artist: str,
+) -> pd.DataFrame:
     sources = []
     if use_artnet:
         sources.append(ArtnetClient.from_env())
     if use_mutualart:
         sources.append(MutualArtClient.from_env())
+    if use_christies:
+        sources.append(ChristiesSource(pages=christies_pages))
+    if use_apify:
+        sources.append(ApifySource.from_env(actor_id=apify_actor, max_items=apify_max_items))
     if not sources:
         return pd.DataFrame()
     src = sources[0] if len(sources) == 1 else MergedSource(*sources)
@@ -62,8 +77,35 @@ with st.sidebar:
     use_mutualart = st.checkbox(
         "MutualArt API", value=False, help="Reads MUTUALART_API_KEY/MUTUALART_BASE_URL"
     )
+    use_christies = st.checkbox(
+        "Christie's scraper",
+        value=False,
+        help="Polite scrape of christies.com past results. TOS-restricted; personal use only.",
+    )
+    christies_pages = st.slider("Christie's pages to scrape", 1, 20, 5) if use_christies else 5
+    use_apify = st.checkbox(
+        "Apify actor",
+        value=False,
+        help="Run an Apify scraper actor (handles anti-bot for you). Reads APIFY_API_TOKEN.",
+    )
+    if use_apify:
+        apify_actor = st.text_input(
+            "Apify actor ID",
+            value=DEFAULT_ACTOR_ID,
+            help="Default targets Artsy gallery LISTINGS (asking prices, not realized sales). "
+                 "For realized auction data, swap in an auction-results actor from the Apify Store.",
+        )
+        apify_max_items = st.number_input("Max items per fetch", 10, 1000, 100, step=10)
+        if "artsy" in apify_actor.lower():
+            st.caption(
+                "⚠️ Artsy actors return gallery asking prices, not realized auction prices — "
+                "the predictor will skew high."
+            )
+    else:
+        apify_actor = DEFAULT_ACTOR_ID
+        apify_max_items = 100
     api_artist = st.text_input(
-        "Artist name (for API fetch)", value="", help="Used only when an API source is enabled"
+        "Artist name (for API/scraper fetch)", value="", help="Used when an API or scraper source is enabled"
     )
 
     st.divider()
@@ -83,13 +125,30 @@ try:
 except Exception as e:
     errors.append(f"CSV load error: {e}")
 
-if (use_artnet or use_mutualart) and api_artist:
+if (use_artnet or use_mutualart or use_christies or use_apify) and api_artist:
     try:
-        api_df = _api_dataframe(use_artnet, use_mutualart, api_artist.strip())
+        with st.spinner(f"Fetching auction data for {api_artist}..."):
+            api_df = _api_dataframe(
+                use_artnet,
+                use_mutualart,
+                use_christies,
+                christies_pages,
+                use_apify,
+                apify_actor,
+                apify_max_items,
+                api_artist.strip(),
+            )
         if df is None or df.empty:
             df = api_df
         else:
             df = pd.concat([df, api_df], ignore_index=True)
+        if api_df is not None and not api_df.empty:
+            st.success(f"Fetched {len(api_df)} lots for {api_artist}.")
+    except CloudflareBlocked as e:
+        errors.append(
+            f"Christie's blocked the scrape (Cloudflare). Open christies.com in a browser, "
+            f"solve the challenge, and supply the cf_clearance cookie via the CLI for now: {e}"
+        )
     except Exception as e:
         errors.append(f"API fetch error: {e}")
 

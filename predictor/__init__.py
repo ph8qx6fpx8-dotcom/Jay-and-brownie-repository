@@ -6,6 +6,8 @@ from predictor.data_sources import (
     CsvSource,
     MergedSource,
 )
+from predictor.scrapers.apify import ApifySource
+from predictor.scrapers.christies import ChristiesSource
 
 __all__ = [
     "ArtistPriceModel",
@@ -15,4 +17,6 @@ __all__ = [
     "MutualArtClient",
     "CsvSource",
     "MergedSource",
+    "ChristiesSource",
+    "ApifySource",
 ]

@@ -32,24 +32,60 @@ fill in the upcoming-lot form, click **Estimate price**.
 
 ## Data sources
 
-The app supports three sources, configurable from the sidebar:
+The app supports five sources, configurable from the sidebar:
 
 | Source | Status | Setup |
 |---|---|---|
 | **CSV upload** | Always works | Upload a CSV matching the schema in `predictor/schema.py` |
 | **Artnet partner API** | Stub adapter, needs your endpoint | Set `ARTNET_API_KEY` and `ARTNET_BASE_URL` in `.env` |
 | **MutualArt partner API** | Stub adapter, needs your endpoint | Set `MUTUALART_API_KEY` and `MUTUALART_BASE_URL` in `.env` |
+| **Christie's scraper** | Skeleton; selectors need verification | Run the CLI once with `--dump-html` to inspect markup, then update SELECTORS at top of `predictor/scrapers/christies.py` |
+| **Apify actor** | Works as-is for any actor returning the right shape | Set `APIFY_API_TOKEN` in `.env`. Default actor is `parseforge/artsy-scraper` (asking prices, NOT auction prices) |
 
 Both Artnet and MutualArt are partner-only — exact endpoint paths and field
 names vary by contract. The adapters in `predictor/data_sources.py` assume
-the most common shape (`/price-database/lots` for Artnet,
-`/auction-results` for MutualArt) and map the typical response fields. If
-your partner docs differ, edit `_map_lot` and the path/params in
-`fetch()` to match.
+the most common shape and map the typical response fields. If your partner
+docs differ, edit `_map_lot` and the path/params in `fetch()` to match.
 
 When more than one source is selected, results are deduplicated by
 `(artist, sale_date, auction_house, lot_number)`, keeping the row with the
 highest provenance score on collisions.
+
+### Christie's scraper
+
+```bash
+# First time: dump one search page so you can see the live HTML and tweak
+# the SELECTORS block at the top of predictor/scrapers/christies.py
+python -m predictor.scrapers.christies --artist "Gerhard Richter" --dump-html debug.html
+
+# Then a real scrape (1 req/sec, 200-request session cap by default):
+python -m predictor.scrapers.christies --artist "Gerhard Richter" --pages 5 \
+    --out data/richter.csv -v
+
+# If Cloudflare blocks you: open christies.com in a real browser, solve the
+# challenge, copy the cf_clearance cookie value, and pass it via:
+python -m predictor.scrapers.christies --artist "Gerhard Richter" --pages 5 \
+    --cookie cf_clearance=YOUR_VALUE --out data/richter.csv
+```
+
+Scraping christies.com is against their TOS — keep volume low, use it for
+personal research only, and don't redistribute the data.
+
+### Apify actor
+
+```python
+from predictor.scrapers.apify import ApifySource
+src = ApifySource.from_env()                   # default: parseforge/artsy-scraper
+df = src.fetch("René Portocarrero")
+```
+
+Or via CLI through the Streamlit sidebar. **Important caveat**: the default
+Artsy actor returns *gallery listings (asking prices)*, not realized auction
+sales. The hedonic predictor was built around realized auction prices, so
+results from Artsy data will skew high. For realized data, search the Apify
+Store for actors targeting Christie's, Sotheby's, MutualArt, or Heritage
+auction-result pages and pass their `actor_id` to `ApifySource`. You can
+also pass an `ApifyMapping` to handle non-default field names.
 
 ## CSV schema
 

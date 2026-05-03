@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Art Auction Price Predictor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #fafafa; --fg: #1a1a1a; --muted: #666; --accent: #1f6feb;
+    --card: #ffffff; --border: #e5e5e5; --good: #0a7d3a; --warn: #b45309;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--fg); margin: 0; padding: 0 16px 80px;
+  }
+  header { max-width: 1100px; margin: 32px auto 24px; }
+  header h1 { font-size: 28px; margin: 0 0 6px; }
+  header p { color: var(--muted); margin: 0; }
+  main { max-width: 1100px; margin: 0 auto; display: grid; gap: 20px; }
+  section.card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 24px;
+  }
+  section.card h2 { font-size: 16px; margin: 0 0 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  button, .btn {
+    cursor: pointer; padding: 8px 14px; border-radius: 6px;
+    border: 1px solid var(--border); background: white; font: inherit;
+  }
+  button.primary {
+    background: var(--accent); color: white; border-color: var(--accent);
+  }
+  button:hover { filter: brightness(0.97); }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .data-actions input[type="file"] { font: inherit; }
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px 16px;
+  }
+  label.field { display: flex; flex-direction: column; font-size: 13px; color: var(--muted); }
+  label.field > span { margin-bottom: 4px; }
+  label.field input, label.field select {
+    font: inherit; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px;
+    background: white;
+  }
+  label.field input[type="checkbox"] { width: auto; align-self: flex-start; margin-top: 6px; }
+  .check-row { display: flex; gap: 18px; flex-wrap: wrap; padding-top: 4px; }
+  .check-row label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--fg); }
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .stat { background: #f5f5f5; padding: 10px 14px; border-radius: 6px; }
+  .stat .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .stat .value { font-size: 18px; font-weight: 600; margin-top: 2px; }
+  .estimate { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; }
+  .estimate .stat .value { font-size: 22px; }
+  .estimate .stat.headline { background: #e8f0fe; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  details { margin-top: 12px; color: var(--muted); }
+  details summary { cursor: pointer; }
+  .hidden { display: none !important; }
+  #chart { min-height: 400px; }
+  .error { color: #b45309; padding: 8px 12px; background: #fef3c7; border-radius: 6px; }
+  .ok { color: var(--good); }
+  small.hint { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Art Auction Price Predictor</h1>
+  <p>Hedonic regression on past sales. Estimate an upcoming lot, project 10 years out.</p>
+</header>
+
+<main>
+
+<section class="card" id="data-section">
+  <h2>1. Load data</h2>
+  <div class="row data-actions">
+    <button id="load-sample" class="primary">Use bundled sample</button>
+    <span>or</span>
+    <input type="file" id="csv-input" accept=".csv,text/csv">
+    <small class="hint">CSV columns: artist, medium, height_cm, width_cm, year_created, sale_date, sale_price_usd, auction_house, sale_type (+ optional fields)</small>
+  </div>
+  <div id="data-status" class="row" style="margin-top: 8px;"></div>
+</section>
+
+<section class="card hidden" id="artist-section">
+  <h2>2. Pick artist</h2>
+  <div class="row">
+    <label class="field" style="min-width: 260px;">
+      <span>Artist</span>
+      <select id="artist-select"></select>
+    </label>
+    <label class="field" style="min-width: 120px;">
+      <span>Ridge α (regularization)</span>
+      <input id="alpha" type="number" min="0.1" max="10" step="0.1" value="1.0">
+    </label>
+  </div>
+  <div class="summary" id="artist-summary" style="margin-top: 16px;"></div>
+</section>
+
+<section class="card hidden" id="form-section">
+  <h2>3. Upcoming lot</h2>
+  <form id="lot-form">
+    <div class="grid">
+      <label class="field"><span>Medium</span>
+        <select name="medium">
+          <option value="oil">oil</option>
+          <option value="acrylic">acrylic</option>
+          <option value="mixed_media">mixed media</option>
+          <option value="works_on_paper">works on paper</option>
+          <option value="print">print</option>
+          <option value="sculpture">sculpture</option>
+          <option value="photograph">photograph</option>
+          <option value="other">other</option>
+        </select>
+      </label>
+      <label class="field"><span>Height (cm)</span><input name="height" type="number" min="1" step="0.1" value="120" required></label>
+      <label class="field"><span>Width (cm)</span><input name="width" type="number" min="1" step="0.1" value="100" required></label>
+      <label class="field"><span>Depth (cm, sculpture)</span><input name="depth" type="number" min="0" step="0.1" value="0"></label>
+      <label class="field"><span>Year created</span><input name="year_created" type="number" min="1500" max="2100" value="2010" required></label>
+      <label class="field"><span>Auction date</span><input name="sale_date" type="date" required></label>
+      <label class="field"><span>Auction house</span><select name="auction_house"></select></label>
+      <label class="field"><span>Sale type</span>
+        <select name="sale_type">
+          <option value="evening">evening</option>
+          <option value="day" selected>day</option>
+          <option value="online">online</option>
+          <option value="regional">regional</option>
+        </select>
+      </label>
+      <label class="field"><span>Location</span><select name="location"></select></label>
+      <label class="field"><span>Provenance score (0–3)</span><input name="provenance" type="number" min="0" max="3" value="1"></label>
+      <label class="field"><span>Condition (1–5)</span><input name="condition" type="number" min="1" max="5" value="4"></label>
+      <label class="field"><span>Series</span><select name="series"></select></label>
+      <label class="field"><span>Market drift (% / yr)</span><input name="drift" type="number" min="-5" max="10" step="0.5" value="0"></label>
+      <label class="field"><span>Horizon (years)</span><input name="horizon" type="number" min="1" max="20" value="10"></label>
+    </div>
+    <div class="check-row" style="margin-top: 12px;">
+      <label><input type="checkbox" name="signed" checked> Signed</label>
+      <label><input type="checkbox" name="exhibited"> Exhibited</label>
+      <label><input type="checkbox" name="published"> Published</label>
+    </div>
+    <div style="margin-top: 16px;">
+      <button type="submit" class="primary">Estimate price</button>
+    </div>
+  </form>
+</section>
+
+<section class="card hidden" id="results-section">
+  <h2>4. Estimate</h2>
+  <div class="estimate">
+    <div class="stat headline"><div class="label">Point estimate</div><div class="value" id="r-point"></div></div>
+    <div class="stat"><div class="label">80% CI low</div><div class="value" id="r-low"></div></div>
+    <div class="stat"><div class="label">80% CI high</div><div class="value" id="r-high"></div></div>
+  </div>
+  <div id="chart" style="margin-top: 24px;"></div>
+  <h3 style="margin: 24px 0 6px; font-size: 14px;">Year-by-year projection</h3>
+  <div style="overflow-x: auto;"><table id="r-projection"></table></div>
+  <h3 style="margin: 24px 0 6px; font-size: 14px;">Top 5 most-comparable past sales</h3>
+  <div style="overflow-x: auto;"><table id="r-comparables"></table></div>
+  <details>
+    <summary>Caveats</summary>
+    <ul>
+      <li>One Ridge regression per artist; outliers and macro shocks are smoothed out.</li>
+      <li>The 10-year projection extrapolates the artist's in-sample trend plus your market-drift slider; confidence widens with horizon.</li>
+      <li>Categorical levels not seen in training (a brand-new auction house, etc.) fall back to a baseline.</li>
+      <li>Prices should be hammer + buyer's premium in USD. If your CSV uses hammer-only, gross it up first.</li>
+    </ul>
+  </details>
+</section>
+
+</main>
+
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+
+<script>
+// ---------------------------------------------------------------------------
+// Embedded sample data (96 lots across 3 synthetic artists).
+// ---------------------------------------------------------------------------
+const SAMPLE_CSV = `artist,title,medium,height_cm,width_cm,depth_cm,year_created,sale_date,sale_price_usd,auction_house,sale_type,location,lot_number,provenance_score,exhibited,published,condition,signed,series
+Ada Quill,Untitled (7145),oil,244.1,86.4,0,2001,2019-03-12,255114.53,Phillips,evening,London,2,1,False,False,5,True,blue period
+Ada Quill,Untitled (6659),works_on_paper,60.8,34.8,0,1993,2019-03-29,43381.4,Sotheby's,evening,New York,159,2,True,True,4,True,blue period
+Ada Quill,Untitled (6966),oil,145.0,260.9,0,1989,2019-04-19,200046.64,Heritage,online,London,225,2,False,False,4,True,blue period
+Ada Quill,Untitled (9741),works_on_paper,24.0,78.4,0,2017,2019-05-19,13991.13,Christie's,day,Los Angeles,41,0,True,False,5,True,
+Ada Quill,Untitled (321),oil,126.6,79.7,0,1998,2019-10-25,131987.01,Sotheby's,evening,London,590,1,False,True,4,False,
+Ada Quill,Untitled (917),oil,91.9,109.4,0,1989,2019-12-14,48534.93,Doyle,day,London,235,0,False,False,5,True,
+Ada Quill,Untitled (7252),works_on_paper,68.7,66.5,0,2020,2020-01-10,28143.12,Christie's,evening,London,517,0,False,False,4,True,blue period
+Ada Quill,Untitled (8786),oil,233.7,130.9,0,1999,2020-04-14,281845.92,Phillips,evening,New York,340,1,True,True,5,True,
+Ada Quill,Untitled (635),print,88.3,101.1,0,2011,2020-05-13,43454.39,Phillips,evening,London,482,2,False,False,5,True,
+Ada Quill,Untitled (3296),print,86.3,28.6,0,2016,2020-05-22,4496.66,Heritage,online,London,320,0,False,False,4,False,
+Ada Quill,Untitled (9490),oil,128.1,280.9,0,2014,2021-03-01,525428.32,Phillips,evening,Hong Kong,556,3,False,False,4,True,studies
+Ada Quill,Untitled (6625),acrylic,238.5,117.6,0,2009,2021-03-04,116276.43,Bonhams,online,Los Angeles,170,2,False,False,4,True,
+Ada Quill,Untitled (1105),print,65.5,63.8,0,2018,2021-04-11,14053.34,Christie's,day,Hong Kong,33,0,False,False,3,True,
+Ada Quill,Untitled (8850),works_on_paper,58.4,109.7,0,2015,2021-06-06,29421.03,Doyle,day,Hong Kong,83,2,False,False,4,True,
+Ada Quill,Untitled (712),acrylic,211.9,41.7,0,1995,2021-07-22,71362.09,Sotheby's,day,London,471,3,False,True,3,True,
+Ada Quill,Untitled (8667),acrylic,162.6,66.0,0,2019,2021-08-10,192500.59,Sotheby's,evening,New York,9,3,False,False,4,True,blue period
+Ada Quill,Untitled (7580),print,23.8,85.3,0,1991,2021-08-28,23383.62,Phillips,evening,London,256,2,True,True,4,True,
+Ada Quill,Untitled (2443),oil,231.6,53.2,0,2012,2021-10-11,156850.06,Phillips,day,London,559,1,True,False,4,True,
+Ada Quill,Untitled (2415),acrylic,230.2,247.0,0,1995,2021-11-26,202273.02,Doyle,day,Chicago,26,1,True,False,4,True,blue period
+Ada Quill,Untitled (5345),print,57.7,91.9,0,1997,2021-12-14,17080.86,Doyle,day,Hong Kong,413,1,False,True,5,True,
+Ada Quill,Untitled (7429),oil,234.5,60.5,0,2003,2022-01-17,134419.3,Phillips,day,Los Angeles,374,0,True,False,5,False,blue period
+Ada Quill,Untitled (1744),print,20.8,92.1,0,2019,2022-02-21,10224.67,Phillips,day,New York,306,0,True,True,5,True,studies
+Ada Quill,Untitled (8670),oil,93.9,299.4,0,2017,2022-04-24,133282.78,Christie's,day,London,258,1,False,False,3,True,studies
+Ada Quill,Untitled (1189),oil,181.5,187.0,0,2005,2022-07-06,150928.3,Doyle,day,Hong Kong,10,0,False,False,4,True,blue period
+Ada Quill,Untitled (6874),oil,198.3,103.7,0,1993,2022-08-16,131083.63,Heritage,day,New York,226,1,True,True,4,True,
+Ada Quill,Untitled (4326),works_on_paper,41.0,86.3,0,1993,2022-10-13,35693.23,Christie's,evening,Hong Kong,518,1,True,False,5,True,
+Ada Quill,Untitled (7245),oil,75.5,149.3,0,2009,2022-12-12,60542.61,Heritage,online,Los Angeles,219,1,False,True,4,True,
+Ada Quill,Untitled (9578),oil,113.1,109.6,0,1998,2023-08-25,81528.47,Doyle,day,Hong Kong,439,0,False,False,5,True,
+Ada Quill,Untitled (7450),acrylic,75.5,201.8,0,1986,2023-10-02,73632.54,Doyle,day,New York,335,0,False,False,4,True,
+Ada Quill,Untitled (3924),acrylic,171.8,79.7,0,1995,2023-10-04,72742.38,Heritage,day,New York,60,1,False,True,4,False,blue period
+Ada Quill,Untitled (6940),oil,152.8,112.4,0,2016,2023-11-10,416400.08,Christie's,evening,Hong Kong,421,3,False,False,5,True,
+Ada Quill,Untitled (961),print,51.0,106.1,0,2020,2023-12-10,44314.66,Phillips,evening,Hong Kong,169,2,False,False,5,True,
+Bo Marquez,Untitled (9591),oil,242.4,257.3,0,2013,2019-03-08,496065.35,Doyle,day,Hong Kong,447,1,False,True,4,True,
+Bo Marquez,Untitled (3476),mixed_media,93.5,155.6,0,2002,2019-03-23,242889.76,Doyle,day,Hong Kong,22,1,False,False,4,True,
+Bo Marquez,Untitled (5315),mixed_media,97.0,217.9,0,2004,2019-03-29,381029.1,Bonhams,day,New York,58,2,False,True,4,True,
+Bo Marquez,Untitled (2371),sculpture,83.8,51.4,93.4,1997,2019-04-28,184604.71,Heritage,day,London,134,2,True,False,5,True,
+Bo Marquez,Untitled (9892),oil,111.5,234.7,0,2013,2019-05-17,442799.06,Bonhams,day,Chicago,257,1,False,False,4,True,
+Bo Marquez,Untitled (7254),mixed_media,187.3,79.4,0,2020,2019-06-15,327869.09,Sotheby's,day,New York,305,1,False,False,5,True,
+Bo Marquez,Untitled (4296),oil,243.3,263.6,0,2018,2019-06-18,506132.32,Heritage,day,Hong Kong,599,0,False,False,4,True,blue period
+Bo Marquez,Untitled (1959),oil,130.9,103.3,0,2016,2019-07-24,295971.37,Heritage,day,Hong Kong,549,1,False,False,5,True,
+Bo Marquez,Untitled (6687),oil,227.5,75.3,0,2009,2019-09-09,338322.53,Doyle,online,Los Angeles,287,1,False,True,4,True,
+Bo Marquez,Untitled (2331),oil,106.5,263.5,0,1997,2020-05-03,342545.05,Doyle,online,Los Angeles,74,1,False,False,4,True,studies
+Bo Marquez,Untitled (7214),sculpture,113.9,84.1,81.5,2024,2020-05-07,639267.69,Doyle,day,Chicago,103,3,False,True,4,True,blue period
+Bo Marquez,Untitled (4690),oil,121.8,116.9,0,2017,2020-05-14,348186.23,Phillips,evening,London,236,0,False,False,5,True,
+Bo Marquez,Untitled (9482),oil,183.9,186.6,0,2001,2020-05-17,654227.15,Phillips,day,London,27,1,False,False,5,True,
+Bo Marquez,Untitled (6566),oil,60.9,116.0,0,1999,2020-07-29,180983.04,Christie's,day,New York,504,1,False,False,4,True,studies
+Bo Marquez,Untitled (4184),oil,136.1,103.5,0,2008,2020-09-06,234512.79,Sotheby's,day,London,10,0,False,False,4,False,
+Bo Marquez,Untitled (1887),oil,133.1,92.2,0,2020,2020-09-10,396618.2,Heritage,online,Los Angeles,480,3,False,False,5,True,blue period
+Bo Marquez,Untitled (673),mixed_media,231.6,137.6,0,2017,2020-10-14,1377612.37,Phillips,evening,Hong Kong,356,2,True,False,4,True,blue period
+Bo Marquez,Untitled (334),sculpture,108.2,157.8,128.2,2003,2020-12-06,313492.32,Doyle,day,Los Angeles,157,0,False,True,3,False,
+Bo Marquez,Untitled (7343),sculpture,101.3,179.7,111.2,2003,2021-01-10,531241.23,Sotheby's,day,New York,18,0,False,False,4,True,blue period
+Bo Marquez,Untitled (4987),sculpture,209.3,48.4,50.4,1995,2021-03-05,392198.31,Phillips,online,Los Angeles,505,0,True,False,5,True,
+Bo Marquez,Untitled (7995),print,21.1,34.4,0,2022,2021-12-27,17262.05,Bonhams,day,Hong Kong,555,1,False,False,5,False,blue period
+Bo Marquez,Untitled (8549),oil,124.1,171.5,0,2005,2022-01-10,615993.29,Sotheby's,evening,London,277,0,False,False,5,True,
+Bo Marquez,Untitled (2154),sculpture,79.4,62.3,52.6,2019,2022-06-11,289278.68,Sotheby's,day,Chicago,93,0,False,True,5,True,
+Bo Marquez,Untitled (7989),sculpture,136.9,112.2,76.6,2018,2022-06-29,394653.93,Sotheby's,day,New York,218,0,False,False,4,True,
+Bo Marquez,Untitled (6623),sculpture,214.4,109.9,73.1,2005,2022-08-07,621464.23,Phillips,online,Paris,527,1,True,False,5,True,
+Bo Marquez,Untitled (8319),oil,216.9,294.9,0,2002,2022-12-29,1016457.12,Sotheby's,day,Los Angeles,274,1,False,False,4,True,
+Bo Marquez,Untitled (8752),mixed_media,88.3,232.0,0,2003,2023-04-24,342826.7,Heritage,online,Los Angeles,130,0,True,True,4,True,
+Bo Marquez,Untitled (7917),mixed_media,107.5,182.1,0,1997,2023-07-20,459819.9,Heritage,day,Hong Kong,110,1,False,False,5,True,
+Bo Marquez,Untitled (9369),oil,195.2,257.7,0,2013,2023-08-22,1154177.2,Sotheby's,day,Paris,393,1,False,False,4,True,
+Bo Marquez,Untitled (4720),print,66.0,74.3,0,2008,2023-08-31,125816.66,Phillips,evening,London,449,1,False,False,3,True,
+Bo Marquez,Untitled (4772),mixed_media,135.8,187.8,0,1996,2023-11-11,449046.37,Sotheby's,day,Chicago,34,0,False,True,4,True,
+Bo Marquez,Untitled (4782),mixed_media,74.3,293.0,0,2014,2023-12-23,533948.71,Phillips,day,Los Angeles,522,0,False,True,5,True,studies
+Chen Lin,Untitled (9142),oil,137.6,154.2,0,1988,2019-04-05,3161645.48,Bonhams,online,Paris,396,2,False,True,5,True,
+Chen Lin,Untitled (5969),oil,207.6,172.0,0,1980,2019-06-22,3310758.24,Heritage,online,London,244,1,True,True,5,True,studies
+Chen Lin,Untitled (4713),works_on_paper,26.5,29.7,0,2001,2019-07-20,92518.9,Heritage,day,Los Angeles,320,1,False,False,5,False,
+Chen Lin,Untitled (5494),print,35.5,65.1,0,2000,2019-07-21,142474.36,Bonhams,day,Los Angeles,150,1,False,True,4,True,
+Chen Lin,Untitled (5180),oil,89.5,196.6,0,1982,2019-08-13,4505523.01,Phillips,evening,London,155,1,False,False,5,False,
+Chen Lin,Untitled (5781),oil,134.0,246.4,0,2007,2019-09-21,8054409.73,Sotheby's,evening,Hong Kong,247,1,False,False,5,True,
+Chen Lin,Untitled (3894),oil,233.5,162.8,0,1986,2019-10-23,3928454.48,Heritage,day,New York,309,3,True,True,4,False,
+Chen Lin,Untitled (2415),works_on_paper,76.1,33.8,0,1994,2019-12-12,612170.47,Sotheby's,evening,London,448,1,True,False,5,True,blue period
+Chen Lin,Untitled (5237),works_on_paper,69.3,41.5,0,1996,2020-07-04,334240.6,Sotheby's,online,New York,356,0,True,True,5,False,blue period
+Chen Lin,Untitled (6002),works_on_paper,75.4,25.7,0,2003,2020-07-30,271995.76,Doyle,online,London,371,3,True,False,5,True,
+Chen Lin,Untitled (6172),oil,220.3,290.7,0,1987,2020-08-18,11084483.24,Phillips,evening,Hong Kong,337,0,False,False,5,True,
+Chen Lin,Untitled (7148),oil,51.5,234.2,0,1989,2020-08-29,5112006.64,Phillips,evening,Hong Kong,20,0,False,False,4,True,blue period
+Chen Lin,Untitled (9122),oil,151.5,80.2,0,2008,2021-01-04,4779557.47,Christie's,evening,London,27,2,False,False,4,True,blue period
+Chen Lin,Untitled (9947),oil,118.2,136.2,0,1998,2021-02-23,2142911.11,Christie's,day,New York,453,0,False,True,3,True,
+Chen Lin,Untitled (9203),print,22.3,35.3,0,2006,2021-03-09,45497.07,Christie's,day,Los Angeles,121,0,False,False,4,False,
+Chen Lin,Untitled (8267),oil,160.9,245.9,0,1980,2021-03-12,3093693.72,Doyle,online,London,177,1,False,True,3,True,blue period
+Chen Lin,Untitled (2249),oil,201.0,69.6,0,2005,2021-05-12,3665043.47,Phillips,evening,Hong Kong,262,1,False,False,4,False,
+Chen Lin,Untitled (1480),oil,138.4,118.7,0,1995,2021-07-03,2949111.59,Christie's,day,Hong Kong,520,1,True,False,4,True,studies
+Chen Lin,Untitled (8642),works_on_paper,72.7,98.4,0,1992,2021-07-12,453930.43,Bonhams,day,London,429,1,False,False,4,True,
+Chen Lin,Untitled (3987),print,80.3,77.6,0,2003,2021-08-13,306056.3,Christie's,day,Paris,447,0,False,False,5,True,studies
+Chen Lin,Untitled (5932),oil,84.9,211.9,0,1979,2022-01-25,6119564.14,Sotheby's,evening,New York,526,1,True,False,4,True,
+Chen Lin,Untitled (267),oil,182.9,62.3,0,2001,2022-03-28,3872826.88,Phillips,evening,Hong Kong,366,1,False,False,4,True,
+Chen Lin,Untitled (2420),oil,65.7,266.3,0,1999,2022-05-05,8046093.06,Christie's,evening,New York,242,1,True,False,5,True,blue period
+Chen Lin,Untitled (1769),oil,150.8,285.8,0,1980,2022-05-14,4180421.76,Doyle,online,Los Angeles,503,1,False,True,5,True,
+Chen Lin,Untitled (8692),print,78.1,46.7,0,1989,2022-06-15,475746.1,Sotheby's,evening,London,221,1,True,True,5,True,blue period
+Chen Lin,Untitled (1875),print,25.1,28.1,0,1987,2023-01-12,92353.71,Sotheby's,evening,Hong Kong,565,1,False,False,5,True,
+Chen Lin,Untitled (7771),print,50.1,108.8,0,2004,2023-01-30,433854.55,Sotheby's,evening,London,69,1,True,False,5,True,
+Chen Lin,Untitled (7841),oil,98.2,210.8,0,1984,2023-06-17,2825196.34,Phillips,day,London,187,0,False,False,4,True,
+Chen Lin,Untitled (5777),oil,134.9,152.0,0,1989,2023-07-13,4861925.33,Christie's,day,Hong Kong,446,1,False,False,4,True,
+Chen Lin,Untitled (4688),oil,193.2,285.3,0,1980,2023-08-03,16581762.24,Christie's,evening,New York,366,2,False,False,4,True,
+Chen Lin,Untitled (2254),oil,190.6,286.2,0,1983,2023-08-07,8245036.16,Phillips,day,New York,159,1,True,True,5,True,
+Chen Lin,Untitled (8508),works_on_paper,80.6,53.2,0,1985,2023-11-15,389956.15,Bonhams,day,Chicago,274,1,False,False,4,True,
+`;
+
+// ---------------------------------------------------------------------------
+// CSV parsing
+// ---------------------------------------------------------------------------
+function parseCSV(text) {
+  const rows = [];
+  let i = 0, field = '', record = [], inQuotes = false;
+  while (i < text.length) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i += 2; continue; }
+        inQuotes = false; i++; continue;
+      }
+      field += c; i++;
+    } else {
+      if (c === '"') { inQuotes = true; i++; continue; }
+      if (c === ',') { record.push(field); field = ''; i++; continue; }
+      if (c === '\n' || c === '\r') {
+        if (field !== '' || record.length) { record.push(field); rows.push(record); }
+        field = ''; record = [];
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        i++; continue;
+      }
+      field += c; i++;
+    }
+  }
+  if (field !== '' || record.length) { record.push(field); rows.push(record); }
+  if (!rows.length) return [];
+  const headers = rows[0].map(h => h.trim());
+  return rows.slice(1).map(r => {
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = (r[idx] ?? '').trim(); });
+    return obj;
+  }).filter(o => Object.values(o).some(v => v !== ''));
+}
+
+// ---------------------------------------------------------------------------
+// Schema normalization
+// ---------------------------------------------------------------------------
+const MEDIUM_VALUES = new Set(['oil','acrylic','mixed_media','works_on_paper','print','sculpture','photograph','other']);
+const MEDIUM_ALIASES = {
+  oil_on_canvas: 'oil', oil_on_panel: 'oil', oils: 'oil',
+  acrylic_on_canvas: 'acrylic', acrylics: 'acrylic',
+  mixed: 'mixed_media', mixed_media_on_canvas: 'mixed_media',
+  paper: 'works_on_paper', watercolor: 'works_on_paper', watercolour: 'works_on_paper',
+  drawing: 'works_on_paper', ink_on_paper: 'works_on_paper',
+  lithograph: 'print', screenprint: 'print', etching: 'print', silkscreen: 'print',
+  photo: 'photograph', photography: 'photograph',
+  bronze: 'sculpture', marble: 'sculpture',
+};
+function normalizeMedium(v) {
+  if (!v) return 'other';
+  const s = String(v).toLowerCase().trim().replace(/\s+/g, '_').replace(/-/g, '_');
+  const mapped = MEDIUM_ALIASES[s] || s;
+  return MEDIUM_VALUES.has(mapped) ? mapped : 'other';
+}
+function normalizeSaleType(v) {
+  if (!v) return 'day';
+  const s = String(v).toLowerCase();
+  if (s.includes('evening')) return 'evening';
+  if (s.includes('online') || s.includes('digital')) return 'online';
+  if (s.includes('regional')) return 'regional';
+  return 'day';
+}
+function toBool(v) {
+  if (typeof v === 'boolean') return v;
+  if (v == null) return false;
+  const s = String(v).toLowerCase().trim();
+  return s === 'true' || s === '1' || s === 'yes';
+}
+function toNum(v, fallback = 0) {
+  if (v === '' || v == null) return fallback;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+function validate(rawRows) {
+  const required = ['artist','medium','height_cm','width_cm','year_created','sale_date','sale_price_usd','auction_house','sale_type'];
+  if (!rawRows.length) throw new Error('CSV is empty.');
+  const missing = required.filter(c => !(c in rawRows[0]));
+  if (missing.length) throw new Error('Missing required columns: ' + missing.join(', '));
+  const out = [];
+  for (const r of rawRows) {
+    const price = toNum(r.sale_price_usd, 0);
+    const h = toNum(r.height_cm, 0);
+    const w = toNum(r.width_cm, 0);
+    const date = new Date(r.sale_date);
+    if (price <= 0 || h <= 0 || w <= 0 || isNaN(date.getTime())) continue;
+    out.push({
+      artist: String(r.artist).trim(),
+      title: r.title || '',
+      medium: normalizeMedium(r.medium),
+      height_cm: h, width_cm: w,
+      depth_cm: toNum(r.depth_cm, 0),
+      year_created: toNum(r.year_created, 0),
+      sale_date: date,
+      sale_price_usd: price,
+      auction_house: String(r.auction_house).trim(),
+      sale_type: normalizeSaleType(r.sale_type),
+      location: (r.location || 'other').toLowerCase().trim() || 'other',
+      lot_number: r.lot_number || '',
+      provenance_score: Math.max(0, Math.min(3, toNum(r.provenance_score, 0))),
+      exhibited: toBool(r.exhibited),
+      published: toBool(r.published),
+      condition: Math.max(1, Math.min(5, toNum(r.condition, 4))),
+      signed: toBool(r.signed),
+      series: r.series || '',
+    });
+  }
+  if (!out.length) throw new Error('No valid rows after validation.');
+  return out;
+}
+
+// ---------------------------------------------------------------------------
+// Feature engineering
+// ---------------------------------------------------------------------------
+const TIER1_HOUSES = new Set(["christie's", "sotheby's", "phillips"]);
+const TIER2_HOUSES = new Set(['bonhams', 'heritage', 'doyle', 'lyon & turnbull', 'swann']);
+function houseTier(house, saleType) {
+  const h = (house || '').toLowerCase().trim();
+  if (TIER1_HOUSES.has(h) && saleType === 'evening') return 'tier1';
+  if (TIER1_HOUSES.has(h) || TIER2_HOUSES.has(h)) return 'tier2';
+  return 'tier3';
+}
+function quartileBins(years) {
+  const sorted = years.filter(y => y > 0).slice().sort((a, b) => a - b);
+  if (sorted.length < 4 || sorted[0] === sorted[sorted.length - 1]) {
+    const y = sorted[0] || new Date().getFullYear();
+    return [y - 2, y - 1, y, y + 1, y + 2];
+  }
+  const q = p => sorted[Math.min(sorted.length - 1, Math.floor(p * (sorted.length - 1)))];
+  let bins = [sorted[0], q(0.25), q(0.5), q(0.75), sorted[sorted.length - 1]];
+  bins = Array.from(new Set(bins)).sort((a, b) => a - b);
+  if (bins.length < 5) {
+    const lo = sorted[0], hi = sorted[sorted.length - 1];
+    bins = [0, 1, 2, 3, 4].map(i => lo + ((hi - lo) * i) / 4);
+  }
+  return bins;
+}
+function careerPeriod(year, bins) {
+  if (!year) return 'mid';
+  if (year <= bins[1]) return 'early';
+  if (year <= bins[2]) return 'mid';
+  if (year <= bins[3]) return 'peak';
+  return 'late';
+}
+function saleYearFrac(date) {
+  const start = new Date(date.getFullYear(), 0, 1);
+  const dayOfYear = (date - start) / 86400000;
+  return date.getFullYear() + dayOfYear / 365.25;
+}
+function baseRow(r, careerBins) {
+  return {
+    log_area: Math.log(Math.max(1, r.height_cm) * Math.max(1, r.width_cm)),
+    has_depth: r.depth_cm > 0 ? 1 : 0,
+    log_depth: Math.log1p(Math.max(0, r.depth_cm)),
+    age_at_sale: saleYearFrac(r.sale_date) - r.year_created,
+    sale_year: saleYearFrac(r.sale_date),
+    provenance_score: r.provenance_score,
+    exhibited: r.exhibited ? 1 : 0,
+    published: r.published ? 1 : 0,
+    condition: r.condition,
+    signed: r.signed ? 1 : 0,
+    medium: r.medium,
+    house_tier: houseTier(r.auction_house, r.sale_type),
+    sale_type: r.sale_type,
+    location: r.location,
+    career_period: careerPeriod(r.year_created, careerBins),
+    series: r.series || '',
+  };
+}
+const NUMERIC = ['log_area','has_depth','log_depth','age_at_sale','sale_year','provenance_score','exhibited','published','condition','signed'];
+const CATEGORICAL = ['medium','house_tier','sale_type','location','career_period','series'];
+function fitTransform(rows) {
+  const careerBins = quartileBins(rows.map(r => r.year_created));
+  const baseRows = rows.map(r => baseRow(r, careerBins));
+  const levels = {};
+  for (const col of CATEGORICAL) {
+    levels[col] = Array.from(new Set(baseRows.map(b => b[col]))).sort();
+  }
+  const columns = NUMERIC.slice();
+  for (const col of CATEGORICAL) for (const lvl of levels[col]) columns.push(col + '__' + lvl);
+  const X = baseRows.map(b => columns.map(c => {
+    if (NUMERIC.includes(c)) return b[c];
+    const [col, lvl] = c.split('__');
+    return b[col] === lvl ? 1 : 0;
+  }));
+  return { X, spec: { careerBins, levels, columns } };
+}
+function transformOne(r, spec) {
+  const b = baseRow(r, spec.careerBins);
+  return spec.columns.map(c => {
+    if (NUMERIC.includes(c)) return b[c];
+    const [col, lvl] = c.split('__');
+    return b[col] === lvl ? 1 : 0;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Linear algebra (Ridge regression via Gauss-Jordan)
+// ---------------------------------------------------------------------------
+function transpose(M) {
+  const r = M.length, c = M[0].length;
+  const T = Array.from({ length: c }, () => new Array(r));
+  for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) T[j][i] = M[i][j];
+  return T;
+}
+function matmul(A, B) {
+  const ar = A.length, ac = A[0].length, bc = B[0].length;
+  const C = Array.from({ length: ar }, () => new Array(bc).fill(0));
+  for (let i = 0; i < ar; i++) {
+    for (let k = 0; k < ac; k++) {
+      const a = A[i][k];
+      if (a === 0) continue;
+      for (let j = 0; j < bc; j++) C[i][j] += a * B[k][j];
+    }
+  }
+  return C;
+}
+function matvec(M, v) {
+  const r = M.length, c = M[0].length;
+  const out = new Array(r).fill(0);
+  for (let i = 0; i < r; i++) {
+    let s = 0;
+    for (let j = 0; j < c; j++) s += M[i][j] * v[j];
+    out[i] = s;
+  }
+  return out;
+}
+function solveSPD(A, b) {
+  // Gauss-Jordan with partial pivoting on a copy of [A | b].
+  const n = A.length;
+  const M = A.map((row, i) => row.concat(b[i]));
+  for (let i = 0; i < n; i++) {
+    let piv = i;
+    for (let k = i + 1; k < n; k++) if (Math.abs(M[k][i]) > Math.abs(M[piv][i])) piv = k;
+    if (piv !== i) [M[i], M[piv]] = [M[piv], M[i]];
+    const d = M[i][i];
+    if (Math.abs(d) < 1e-12) throw new Error('Singular matrix in Ridge solve.');
+    for (let j = i; j <= n; j++) M[i][j] /= d;
+    for (let k = 0; k < n; k++) {
+      if (k === i) continue;
+      const f = M[k][i];
+      if (f === 0) continue;
+      for (let j = i; j <= n; j++) M[k][j] -= f * M[i][j];
+    }
+  }
+  return M.map(row => row[n]);
+}
+function ridgeFit(X, y, alpha) {
+  // Match sklearn Ridge(fit_intercept=True): center X and y, fit on centered
+  // data, recover intercept. Intercept is NOT regularized this way.
+  const m = X.length, n = X[0].length;
+  const xMean = new Array(n).fill(0);
+  for (const row of X) for (let j = 0; j < n; j++) xMean[j] += row[j];
+  for (let j = 0; j < n; j++) xMean[j] /= m;
+  let yMean = 0;
+  for (const v of y) yMean += v;
+  yMean /= m;
+  const Xc = X.map(row => row.map((v, j) => v - xMean[j]));
+  const yc = y.map(v => v - yMean);
+  const Xt = transpose(Xc);
+  const XtX = matmul(Xt, Xc);
+  for (let i = 0; i < XtX.length; i++) XtX[i][i] += alpha;
+  const Xty = matvec(Xt, yc);
+  const beta = solveSPD(XtX, Xty);
+  const intercept = yMean - xMean.reduce((s, m, j) => s + m * beta[j], 0);
+  return { beta, intercept };
+}
+
+// ---------------------------------------------------------------------------
+// Hedonic model
+// ---------------------------------------------------------------------------
+function fitHedonic(rows, artist, alpha = 1.0) {
+  const sub = rows.filter(r => r.artist === artist);
+  if (sub.length < 6) throw new Error(`Need at least 6 sales for ${artist}, have ${sub.length}.`);
+  sub.sort((a, b) => a.sale_date - b.sale_date);
+  const { X, spec } = fitTransform(sub);
+  const y = sub.map(r => Math.log(r.sale_price_usd));
+  const { beta, intercept } = ridgeFit(X, y, alpha);
+  const yhat = X.map(row => intercept + row.reduce((s, v, i) => s + v * beta[i], 0));
+  const resid = y.map((yi, i) => yi - yhat[i]);
+  const sigma = resid.length > 1
+    ? Math.sqrt(resid.reduce((s, e) => s + e * e, 0) / (resid.length - 1))
+    : 0.5;
+  const ymean = y.reduce((s, v) => s + v, 0) / y.length;
+  const ssRes = resid.reduce((s, e) => s + e * e, 0);
+  const ssTot = y.reduce((s, v) => s + (v - ymean) ** 2, 0);
+  const rSquared = ssTot > 0 ? 1 - ssRes / ssTot : 0;
+  const trendIdx = spec.columns.indexOf('sale_year');
+  const annualTrend = beta[trendIdx];
+  const span = (sub[sub.length - 1].sale_date - sub[0].sale_date) / (365.25 * 86400000);
+  return { artist, beta, intercept, spec, sigma, rSquared, annualTrend, historicalSpan: Math.max(span, 1), training: sub };
+}
+function lotToRow(lot, artist) {
+  const date = lot.sale_date instanceof Date ? lot.sale_date : new Date(lot.sale_date);
+  return {
+    artist, title: '',
+    medium: normalizeMedium(lot.medium),
+    height_cm: Number(lot.height_cm) || 0,
+    width_cm: Number(lot.width_cm) || 0,
+    depth_cm: Number(lot.depth_cm) || 0,
+    year_created: Number(lot.year_created) || 0,
+    sale_date: date,
+    sale_price_usd: 0,
+    auction_house: lot.auction_house || '',
+    sale_type: normalizeSaleType(lot.sale_type),
+    location: (lot.location || 'other').toLowerCase(),
+    lot_number: '',
+    provenance_score: Math.max(0, Math.min(3, Number(lot.provenance_score) || 0)),
+    exhibited: !!lot.exhibited,
+    published: !!lot.published,
+    condition: Math.max(1, Math.min(5, Number(lot.condition) || 4)),
+    signed: !!lot.signed,
+    series: lot.series || '',
+  };
+}
+const Z80 = 1.282;
+function predict(model, lot) {
+  const row = lotToRow(lot, model.artist);
+  const x = transformOne(row, model.spec);
+  const logYhat = model.intercept + x.reduce((s, v, i) => s + v * model.beta[i], 0);
+  return {
+    point: Math.exp(logYhat),
+    low: Math.exp(logYhat - Z80 * model.sigma),
+    high: Math.exp(logYhat + Z80 * model.sigma),
+    logYhat, sigma: model.sigma,
+  };
+}
+function project(model, lot, years, drift) {
+  const baseDate = lot.sale_date instanceof Date ? lot.sale_date : new Date(lot.sale_date);
+  const out = [];
+  for (let h = 0; h <= years; h++) {
+    const fdate = new Date(baseDate); fdate.setFullYear(baseDate.getFullYear() + h);
+    const row = lotToRow({ ...lot, sale_date: fdate }, model.artist);
+    const x = transformOne(row, model.spec);
+    const logYhat = model.intercept + x.reduce((s, v, i) => s + v * model.beta[i], 0) + drift * h;
+    const sigmaH = model.sigma * Math.sqrt(1 + h / model.historicalSpan);
+    out.push({
+      year: fdate.getFullYear(),
+      point: Math.exp(logYhat),
+      low: Math.exp(logYhat - Z80 * sigmaH),
+      high: Math.exp(logYhat + Z80 * sigmaH),
+    });
+  }
+  return out;
+}
+function comparables(model, lot, k = 5) {
+  const row = lotToRow(lot, model.artist);
+  const xLot = transformOne(row, model.spec);
+  const Xtrain = model.training.map(r => transformOne(r, model.spec));
+  const ranges = xLot.map((_, j) => {
+    let lo = Infinity, hi = -Infinity;
+    for (const r of Xtrain) { if (r[j] < lo) lo = r[j]; if (r[j] > hi) hi = r[j]; }
+    return Math.max(hi - lo, 1e-9);
+  });
+  const dists = Xtrain.map(r => {
+    let s = 0;
+    for (let j = 0; j < r.length; j++) s += Math.abs(r[j] - xLot[j]) / ranges[j];
+    return s / r.length;
+  });
+  const indexed = dists.map((d, i) => ({ d, row: model.training[i] }));
+  indexed.sort((a, b) => a.d - b.d);
+  return indexed.slice(0, k);
+}
+
+// ---------------------------------------------------------------------------
+// UI
+// ---------------------------------------------------------------------------
+let DATA = null;
+let MODEL = null;
+const fmt = n => '$' + Math.round(n).toLocaleString('en-US');
+const fmtDate = d => d instanceof Date ? d.toISOString().slice(0, 10) : String(d);
+
+function showStatus(node, message, ok = true) {
+  node.innerHTML = `<span class="${ok ? 'ok' : 'error'}">${message}</span>`;
+}
+
+function loadData(text) {
+  try {
+    DATA = validate(parseCSV(text));
+  } catch (e) {
+    showStatus(document.getElementById('data-status'), 'Error: ' + e.message, false);
+    return;
+  }
+  showStatus(document.getElementById('data-status'),
+    `Loaded ${DATA.length} rows across ${new Set(DATA.map(r => r.artist)).size} artists.`);
+  populateArtistPicker();
+  document.getElementById('artist-section').classList.remove('hidden');
+}
+
+function populateArtistPicker() {
+  const sel = document.getElementById('artist-select');
+  sel.innerHTML = '';
+  const artists = Array.from(new Set(DATA.map(r => r.artist))).sort();
+  for (const a of artists) {
+    const opt = document.createElement('option');
+    opt.value = a; opt.textContent = a;
+    sel.appendChild(opt);
+  }
+  sel.value = artists[0];
+  fitArtistModel();
+}
+
+function fitArtistModel() {
+  const artist = document.getElementById('artist-select').value;
+  const alpha = Number(document.getElementById('alpha').value) || 1.0;
+  const sub = DATA.filter(r => r.artist === artist);
+  if (sub.length < 6) {
+    showStatus(document.getElementById('data-status'),
+      `Only ${sub.length} sales for ${artist}; need ≥6.`, false);
+    document.getElementById('form-section').classList.add('hidden');
+    return;
+  }
+  try {
+    MODEL = fitHedonic(DATA, artist, alpha);
+  } catch (e) {
+    showStatus(document.getElementById('data-status'), 'Model fit failed: ' + e.message, false);
+    return;
+  }
+  renderArtistSummary(MODEL, sub);
+  populateFormDropdowns(sub);
+  document.getElementById('form-section').classList.remove('hidden');
+}
+
+function renderArtistSummary(model, sub) {
+  const prices = sub.map(r => r.sale_price_usd).sort((a, b) => a - b);
+  const median = prices[Math.floor(prices.length / 2)];
+  const dates = sub.map(r => r.sale_date).sort((a, b) => a - b);
+  const trendPct = (Math.exp(model.annualTrend) - 1) * 100;
+  const summary = document.getElementById('artist-summary');
+  summary.innerHTML = `
+    <div class="stat"><div class="label">Lots</div><div class="value">${sub.length}</div></div>
+    <div class="stat"><div class="label">R²</div><div class="value">${model.rSquared.toFixed(2)}</div></div>
+    <div class="stat"><div class="label">Annual trend</div><div class="value">${trendPct >= 0 ? '+' : ''}${trendPct.toFixed(1)}%</div></div>
+    <div class="stat"><div class="label">Median price</div><div class="value">${fmt(median)}</div></div>
+    <div class="stat"><div class="label">Price range</div><div class="value">${fmt(prices[0])} – ${fmt(prices[prices.length - 1])}</div></div>
+    <div class="stat"><div class="label">Date range</div><div class="value">${fmtDate(dates[0])} → ${fmtDate(dates[dates.length - 1])}</div></div>
+  `;
+}
+
+function populateFormDropdowns(sub) {
+  const fillSelect = (name, values, fallback) => {
+    const sel = document.querySelector(`#lot-form select[name="${name}"]`);
+    if (!sel) return;
+    sel.innerHTML = '';
+    const vs = values.length ? values : [fallback];
+    for (const v of vs) {
+      const o = document.createElement('option');
+      o.value = v; o.textContent = v || '(none)';
+      sel.appendChild(o);
+    }
+  };
+  fillSelect('auction_house', Array.from(new Set(sub.map(r => r.auction_house))).filter(Boolean).sort(), "Christie's");
+  fillSelect('location', Array.from(new Set(sub.map(r => r.location))).filter(Boolean).sort(), 'new york');
+  fillSelect('series', Array.from(new Set(sub.map(r => r.series))).sort(), '');
+  // default the auction date to today
+  const todayISO = new Date().toISOString().slice(0, 10);
+  document.querySelector('#lot-form input[name="sale_date"]').value = todayISO;
+}
+
+function readLotForm() {
+  const f = document.getElementById('lot-form');
+  const fd = new FormData(f);
+  return {
+    medium: fd.get('medium'),
+    height_cm: Number(fd.get('height')),
+    width_cm: Number(fd.get('width')),
+    depth_cm: Number(fd.get('depth') || 0),
+    year_created: Number(fd.get('year_created')),
+    sale_date: fd.get('sale_date'),
+    auction_house: fd.get('auction_house'),
+    sale_type: fd.get('sale_type'),
+    location: fd.get('location'),
+    provenance_score: Number(fd.get('provenance')),
+    condition: Number(fd.get('condition')),
+    series: fd.get('series') || '',
+    signed: fd.get('signed') === 'on',
+    exhibited: fd.get('exhibited') === 'on',
+    published: fd.get('published') === 'on',
+    drift: Number(fd.get('drift') || 0) / 100,
+    horizon: Number(fd.get('horizon') || 10),
+  };
+}
+
+function renderResults(lot) {
+  const pred = predict(MODEL, lot);
+  const proj = project(MODEL, lot, lot.horizon, lot.drift);
+  const comps = comparables(MODEL, lot, 5);
+
+  document.getElementById('r-point').textContent = fmt(pred.point);
+  document.getElementById('r-low').textContent = fmt(pred.low);
+  document.getElementById('r-high').textContent = fmt(pred.high);
+
+  if (typeof Plotly !== 'undefined') {
+    const traceHigh = { x: proj.map(p => p.year), y: proj.map(p => p.high), type: 'scatter', mode: 'lines', line: { width: 0 }, showlegend: false };
+    const traceLow = { x: proj.map(p => p.year), y: proj.map(p => p.low), type: 'scatter', mode: 'lines', fill: 'tonexty', fillcolor: 'rgba(31,111,235,0.15)', line: { width: 0 }, name: '80% CI' };
+    const tracePoint = { x: proj.map(p => p.year), y: proj.map(p => p.point), type: 'scatter', mode: 'lines+markers', line: { color: '#1f6feb', width: 2 }, name: 'Point estimate' };
+    Plotly.newPlot('chart', [traceHigh, traceLow, tracePoint], {
+      margin: { t: 20, r: 20, b: 40, l: 70 },
+      yaxis: { tickprefix: '$', separatethousands: true, title: 'USD' },
+      xaxis: { title: 'Year' },
+      hovermode: 'x unified',
+      paper_bgcolor: '#fff', plot_bgcolor: '#fff',
+    }, { displayModeBar: false, responsive: true });
+  } else {
+    document.getElementById('chart').innerHTML = '<div class="error">Chart library failed to load (no internet?). Projection table is still below.</div>';
+  }
+
+  const projTable = document.getElementById('r-projection');
+  projTable.innerHTML =
+    '<thead><tr><th>Year</th><th class="num">Point estimate</th><th class="num">80% CI low</th><th class="num">80% CI high</th></tr></thead>' +
+    '<tbody>' + proj.map(p =>
+      `<tr><td>${p.year}</td><td class="num">${fmt(p.point)}</td><td class="num">${fmt(p.low)}</td><td class="num">${fmt(p.high)}</td></tr>`
+    ).join('') + '</tbody>';
+
+  const compTable = document.getElementById('r-comparables');
+  compTable.innerHTML =
+    '<thead><tr><th class="num">Distance</th><th>Date</th><th>Title</th><th>Medium</th><th class="num">H × W (cm)</th><th>House</th><th>Sale</th><th class="num">Price (USD)</th></tr></thead>' +
+    '<tbody>' + comps.map(c =>
+      `<tr><td class="num">${c.d.toFixed(3)}</td>
+       <td>${fmtDate(c.row.sale_date)}</td><td>${c.row.title}</td>
+       <td>${c.row.medium}</td><td class="num">${c.row.height_cm} × ${c.row.width_cm}</td>
+       <td>${c.row.auction_house}</td><td>${c.row.sale_type}</td>
+       <td class="num">${fmt(c.row.sale_price_usd)}</td></tr>`
+    ).join('') + '</tbody>';
+
+  document.getElementById('results-section').classList.remove('hidden');
+  document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Wire up events
+document.getElementById('load-sample').addEventListener('click', () => loadData(SAMPLE_CSV));
+document.getElementById('csv-input').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => loadData(String(reader.result));
+  reader.readAsText(file);
+});
+document.getElementById('artist-select').addEventListener('change', fitArtistModel);
+document.getElementById('alpha').addEventListener('change', fitArtistModel);
+document.getElementById('lot-form').addEventListener('submit', e => {
+  e.preventDefault();
+  if (!MODEL) return;
+  try { renderResults(readLotForm()); }
+  catch (err) { showStatus(document.getElementById('data-status'), 'Prediction failed: ' + err.message, false); }
+});
+</script>
+</body>
+</html>

@@ -19,7 +19,33 @@ estimated annual price trend; combined with a user-tunable broader market
 drift, that's what drives the projection. Confidence intervals widen with
 horizon (`σ × √(1 + h/T)`).
 
-## Quick start (local)
+## Easiest way to run it: standalone `index.html`
+
+No Python, no terminal, no GitHub, no install. The file `index.html`
+in this repo is a fully self-contained version of the app — UI,
+regression model, chart, and the bundled sample data are all packed
+into that one file.
+
+To use it:
+
+1. Download `index.html` (right-click → Save As, or download the repo
+   as a ZIP from GitHub and pull it out).
+2. Double-click the file. It opens in your default browser like a
+   normal web page.
+3. Click **Use bundled sample** to try it immediately, or upload your
+   own CSV.
+4. Pick an artist, fill the form, click **Estimate price**.
+
+Everything runs in your browser — your data never leaves the page.
+Internet is needed only the first time you open it (for the chart
+library on the CDN). The Ridge-regression math is reimplemented in
+JavaScript and produces identical numbers to the Python version.
+
+The standalone HTML doesn't include the API/scraper integrations
+(those need a Python server). For Apify, MutualArt, etc., use the
+Streamlit version below.
+
+## Streamlit version (Python)
 
 ```bash
 pip install -r requirements.txt

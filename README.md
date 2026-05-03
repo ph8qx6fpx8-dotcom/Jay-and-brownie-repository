@@ -19,7 +19,7 @@ estimated annual price trend; combined with a user-tunable broader market
 drift, that's what drives the projection. Confidence intervals widen with
 horizon (`σ × √(1 + h/T)`).
 
-## Quick start
+## Quick start (local)
 
 ```bash
 pip install -r requirements.txt
@@ -29,6 +29,33 @@ streamlit run app.py
 The bundled sample CSV (`sample_data/sample_sales.csv`) covers three
 synthetic artists so you can try the full flow immediately. Pick one,
 fill in the upcoming-lot form, click **Estimate price**.
+
+## Deploy to Streamlit Community Cloud (no terminal needed)
+
+1. Go to https://share.streamlit.io and sign in with the GitHub account
+   that owns this repo.
+2. Click **New app** → fill in:
+   - Repository: `ph8qx6fpx8-dotcom/Jay-and-brownie-repository`
+   - Branch: `claude/art-auction-price-predictor-3vwY0` (or `main` once
+     merged)
+   - Main file path: `app.py`
+3. Click **Advanced settings → Secrets** and paste:
+   ```toml
+   APIFY_API_TOKEN = "apify_api_your_token_here"
+   ```
+   Plus any other keys you want (Artnet/MutualArt) using the format in
+   `.streamlit/secrets.toml.example`.
+4. Click **Deploy**. First build takes 2–3 minutes.
+
+Streamlit Cloud auto-redeploys on every push to the selected branch.
+
+**One caveat for the Christie's scraper**: Christie's may detect and
+block requests originating from cloud-provider IP ranges (Streamlit
+Cloud runs on AWS). If the scraper checkbox returns 0 rows when hosted,
+fall back to running it locally and committing the resulting CSV to
+the repo — Streamlit Cloud will pick it up and serve via the upload
+path. Apify works fine from Streamlit Cloud (it's a hosted service that
+runs the scrape on its own infrastructure).
 
 ## Data sources
 

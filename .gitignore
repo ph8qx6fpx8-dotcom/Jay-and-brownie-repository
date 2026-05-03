@@ -5,7 +5,7 @@ __pycache__/
 .venv/
 venv/
 .pytest_cache/
-.streamlit/
+.streamlit/secrets.toml
 *.egg-info/
 build/
 dist/

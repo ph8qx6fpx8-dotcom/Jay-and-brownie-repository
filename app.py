@@ -24,6 +24,21 @@ from predictor.scrapers.christies import ChristiesSource, CloudflareBlocked
 
 load_dotenv()
 
+
+def _hydrate_secrets() -> None:
+    """Streamlit Cloud injects credentials via st.secrets, not .env.
+    Mirror them into os.environ so the existing data-source clients work unchanged.
+    """
+    try:
+        for key, value in st.secrets.items():
+            if isinstance(value, str) and key not in os.environ:
+                os.environ[key] = value
+    except Exception:
+        pass
+
+
+_hydrate_secrets()
+
 st.set_page_config(page_title="Art Auction Price Predictor", layout="wide")
 st.title("Art Auction Price Predictor")
 st.caption(

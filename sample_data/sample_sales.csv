@@ -1,0 +1,97 @@
+artist,title,medium,height_cm,width_cm,depth_cm,year_created,sale_date,sale_price_usd,auction_house,sale_type,location,lot_number,provenance_score,exhibited,published,condition,signed,series
+Ada Quill,Untitled (7145),oil,244.1,86.4,0,2001,2019-03-12,255114.53,Phillips,evening,London,2,1,False,False,5,True,blue period
+Ada Quill,Untitled (6659),works_on_paper,60.8,34.8,0,1993,2019-03-29,43381.4,Sotheby's,evening,New York,159,2,True,True,4,True,blue period
+Ada Quill,Untitled (6966),oil,145.0,260.9,0,1989,2019-04-19,200046.64,Heritage,online,London,225,2,False,False,4,True,blue period
+Ada Quill,Untitled (9741),works_on_paper,24.0,78.4,0,2017,2019-05-19,13991.13,Christie's,day,Los Angeles,41,0,True,False,5,True,
+Ada Quill,Untitled (321),oil,126.6,79.7,0,1998,2019-10-25,131987.01,Sotheby's,evening,London,590,1,False,True,4,False,
+Ada Quill,Untitled (917),oil,91.9,109.4,0,1989,2019-12-14,48534.93,Doyle,day,London,235,0,False,False,5,True,
+Ada Quill,Untitled (7252),works_on_paper,68.7,66.5,0,2020,2020-01-10,28143.12,Christie's,evening,London,517,0,False,False,4,True,blue period
+Ada Quill,Untitled (8786),oil,233.7,130.9,0,1999,2020-04-14,281845.92,Phillips,evening,New York,340,1,True,True,5,True,
+Ada Quill,Untitled (635),print,88.3,101.1,0,2011,2020-05-13,43454.39,Phillips,evening,London,482,2,False,False,5,True,
+Ada Quill,Untitled (3296),print,86.3,28.6,0,2016,2020-05-22,4496.66,Heritage,online,London,320,0,False,False,4,False,
+Ada Quill,Untitled (9490),oil,128.1,280.9,0,2014,2021-03-01,525428.32,Phillips,evening,Hong Kong,556,3,False,False,4,True,studies
+Ada Quill,Untitled (6625),acrylic,238.5,117.6,0,2009,2021-03-04,116276.43,Bonhams,online,Los Angeles,170,2,False,False,4,True,
+Ada Quill,Untitled (1105),print,65.5,63.8,0,2018,2021-04-11,14053.34,Christie's,day,Hong Kong,33,0,False,False,3,True,
+Ada Quill,Untitled (8850),works_on_paper,58.4,109.7,0,2015,2021-06-06,29421.03,Doyle,day,Hong Kong,83,2,False,False,4,True,
+Ada Quill,Untitled (712),acrylic,211.9,41.7,0,1995,2021-07-22,71362.09,Sotheby's,day,London,471,3,False,True,3,True,
+Ada Quill,Untitled (8667),acrylic,162.6,66.0,0,2019,2021-08-10,192500.59,Sotheby's,evening,New York,9,3,False,False,4,True,blue period
+Ada Quill,Untitled (7580),print,23.8,85.3,0,1991,2021-08-28,23383.62,Phillips,evening,London,256,2,True,True,4,True,
+Ada Quill,Untitled (2443),oil,231.6,53.2,0,2012,2021-10-11,156850.06,Phillips,day,London,559,1,True,False,4,True,
+Ada Quill,Untitled (2415),acrylic,230.2,247.0,0,1995,2021-11-26,202273.02,Doyle,day,Chicago,26,1,True,False,4,True,blue period
+Ada Quill,Untitled (5345),print,57.7,91.9,0,1997,2021-12-14,17080.86,Doyle,day,Hong Kong,413,1,False,True,5,True,
+Ada Quill,Untitled (7429),oil,234.5,60.5,0,2003,2022-01-17,134419.3,Phillips,day,Los Angeles,374,0,True,False,5,False,blue period
+Ada Quill,Untitled (1744),print,20.8,92.1,0,2019,2022-02-21,10224.67,Phillips,day,New York,306,0,True,True,5,True,studies
+Ada Quill,Untitled (8670),oil,93.9,299.4,0,2017,2022-04-24,133282.78,Christie's,day,London,258,1,False,False,3,True,studies
+Ada Quill,Untitled (1189),oil,181.5,187.0,0,2005,2022-07-06,150928.3,Doyle,day,Hong Kong,10,0,False,False,4,True,blue period
+Ada Quill,Untitled (6874),oil,198.3,103.7,0,1993,2022-08-16,131083.63,Heritage,day,New York,226,1,True,True,4,True,
+Ada Quill,Untitled (4326),works_on_paper,41.0,86.3,0,1993,2022-10-13,35693.23,Christie's,evening,Hong Kong,518,1,True,False,5,True,
+Ada Quill,Untitled (7245),oil,75.5,149.3,0,2009,2022-12-12,60542.61,Heritage,online,Los Angeles,219,1,False,True,4,True,
+Ada Quill,Untitled (9578),oil,113.1,109.6,0,1998,2023-08-25,81528.47,Doyle,day,Hong Kong,439,0,False,False,5,True,
+Ada Quill,Untitled (7450),acrylic,75.5,201.8,0,1986,2023-10-02,73632.54,Doyle,day,New York,335,0,False,False,4,True,
+Ada Quill,Untitled (3924),acrylic,171.8,79.7,0,1995,2023-10-04,72742.38,Heritage,day,New York,60,1,False,True,4,False,blue period
+Ada Quill,Untitled (6940),oil,152.8,112.4,0,2016,2023-11-10,416400.08,Christie's,evening,Hong Kong,421,3,False,False,5,True,
+Ada Quill,Untitled (961),print,51.0,106.1,0,2020,2023-12-10,44314.66,Phillips,evening,Hong Kong,169,2,False,False,5,True,
+Bo Marquez,Untitled (9591),oil,242.4,257.3,0,2013,2019-03-08,496065.35,Doyle,day,Hong Kong,447,1,False,True,4,True,
+Bo Marquez,Untitled (3476),mixed_media,93.5,155.6,0,2002,2019-03-23,242889.76,Doyle,day,Hong Kong,22,1,False,False,4,True,
+Bo Marquez,Untitled (5315),mixed_media,97.0,217.9,0,2004,2019-03-29,381029.1,Bonhams,day,New York,58,2,False,True,4,True,
+Bo Marquez,Untitled (2371),sculpture,83.8,51.4,93.4,1997,2019-04-28,184604.71,Heritage,day,London,134,2,True,False,5,True,
+Bo Marquez,Untitled (9892),oil,111.5,234.7,0,2013,2019-05-17,442799.06,Bonhams,day,Chicago,257,1,False,False,4,True,
+Bo Marquez,Untitled (7254),mixed_media,187.3,79.4,0,2020,2019-06-15,327869.09,Sotheby's,day,New York,305,1,False,False,5,True,
+Bo Marquez,Untitled (4296),oil,243.3,263.6,0,2018,2019-06-18,506132.32,Heritage,day,Hong Kong,599,0,False,False,4,True,blue period
+Bo Marquez,Untitled (1959),oil,130.9,103.3,0,2016,2019-07-24,295971.37,Heritage,day,Hong Kong,549,1,False,False,5,True,
+Bo Marquez,Untitled (6687),oil,227.5,75.3,0,2009,2019-09-09,338322.53,Doyle,online,Los Angeles,287,1,False,True,4,True,
+Bo Marquez,Untitled (2331),oil,106.5,263.5,0,1997,2020-05-03,342545.05,Doyle,online,Los Angeles,74,1,False,False,4,True,studies
+Bo Marquez,Untitled (7214),sculpture,113.9,84.1,81.5,2024,2020-05-07,639267.69,Doyle,day,Chicago,103,3,False,True,4,True,blue period
+Bo Marquez,Untitled (4690),oil,121.8,116.9,0,2017,2020-05-14,348186.23,Phillips,evening,London,236,0,False,False,5,True,
+Bo Marquez,Untitled (9482),oil,183.9,186.6,0,2001,2020-05-17,654227.15,Phillips,day,London,27,1,False,False,5,True,
+Bo Marquez,Untitled (6566),oil,60.9,116.0,0,1999,2020-07-29,180983.04,Christie's,day,New York,504,1,False,False,4,True,studies
+Bo Marquez,Untitled (4184),oil,136.1,103.5,0,2008,2020-09-06,234512.79,Sotheby's,day,London,10,0,False,False,4,False,
+Bo Marquez,Untitled (1887),oil,133.1,92.2,0,2020,2020-09-10,396618.2,Heritage,online,Los Angeles,480,3,False,False,5,True,blue period
+Bo Marquez,Untitled (673),mixed_media,231.6,137.6,0,2017,2020-10-14,1377612.37,Phillips,evening,Hong Kong,356,2,True,False,4,True,blue period
+Bo Marquez,Untitled (334),sculpture,108.2,157.8,128.2,2003,2020-12-06,313492.32,Doyle,day,Los Angeles,157,0,False,True,3,False,
+Bo Marquez,Untitled (7343),sculpture,101.3,179.7,111.2,2003,2021-01-10,531241.23,Sotheby's,day,New York,18,0,False,False,4,True,blue period
+Bo Marquez,Untitled (4987),sculpture,209.3,48.4,50.4,1995,2021-03-05,392198.31,Phillips,online,Los Angeles,505,0,True,False,5,True,
+Bo Marquez,Untitled (7995),print,21.1,34.4,0,2022,2021-12-27,17262.05,Bonhams,day,Hong Kong,555,1,False,False,5,False,blue period
+Bo Marquez,Untitled (8549),oil,124.1,171.5,0,2005,2022-01-10,615993.29,Sotheby's,evening,London,277,0,False,False,5,True,
+Bo Marquez,Untitled (2154),sculpture,79.4,62.3,52.6,2019,2022-06-11,289278.68,Sotheby's,day,Chicago,93,0,False,True,5,True,
+Bo Marquez,Untitled (7989),sculpture,136.9,112.2,76.6,2018,2022-06-29,394653.93,Sotheby's,day,New York,218,0,False,False,4,True,
+Bo Marquez,Untitled (6623),sculpture,214.4,109.9,73.1,2005,2022-08-07,621464.23,Phillips,online,Paris,527,1,True,False,5,True,
+Bo Marquez,Untitled (8319),oil,216.9,294.9,0,2002,2022-12-29,1016457.12,Sotheby's,day,Los Angeles,274,1,False,False,4,True,
+Bo Marquez,Untitled (8752),mixed_media,88.3,232.0,0,2003,2023-04-24,342826.7,Heritage,online,Los Angeles,130,0,True,True,4,True,
+Bo Marquez,Untitled (7917),mixed_media,107.5,182.1,0,1997,2023-07-20,459819.9,Heritage,day,Hong Kong,110,1,False,False,5,True,
+Bo Marquez,Untitled (9369),oil,195.2,257.7,0,2013,2023-08-22,1154177.2,Sotheby's,day,Paris,393,1,False,False,4,True,
+Bo Marquez,Untitled (4720),print,66.0,74.3,0,2008,2023-08-31,125816.66,Phillips,evening,London,449,1,False,False,3,True,
+Bo Marquez,Untitled (4772),mixed_media,135.8,187.8,0,1996,2023-11-11,449046.37,Sotheby's,day,Chicago,34,0,False,True,4,True,
+Bo Marquez,Untitled (4782),mixed_media,74.3,293.0,0,2014,2023-12-23,533948.71,Phillips,day,Los Angeles,522,0,False,True,5,True,studies
+Chen Lin,Untitled (9142),oil,137.6,154.2,0,1988,2019-04-05,3161645.48,Bonhams,online,Paris,396,2,False,True,5,True,
+Chen Lin,Untitled (5969),oil,207.6,172.0,0,1980,2019-06-22,3310758.24,Heritage,online,London,244,1,True,True,5,True,studies
+Chen Lin,Untitled (4713),works_on_paper,26.5,29.7,0,2001,2019-07-20,92518.9,Heritage,day,Los Angeles,320,1,False,False,5,False,
+Chen Lin,Untitled (5494),print,35.5,65.1,0,2000,2019-07-21,142474.36,Bonhams,day,Los Angeles,150,1,False,True,4,True,
+Chen Lin,Untitled (5180),oil,89.5,196.6,0,1982,2019-08-13,4505523.01,Phillips,evening,London,155,1,False,False,5,False,
+Chen Lin,Untitled (5781),oil,134.0,246.4,0,2007,2019-09-21,8054409.73,Sotheby's,evening,Hong Kong,247,1,False,False,5,True,
+Chen Lin,Untitled (3894),oil,233.5,162.8,0,1986,2019-10-23,3928454.48,Heritage,day,New York,309,3,True,True,4,False,
+Chen Lin,Untitled (2415),works_on_paper,76.1,33.8,0,1994,2019-12-12,612170.47,Sotheby's,evening,London,448,1,True,False,5,True,blue period
+Chen Lin,Untitled (5237),works_on_paper,69.3,41.5,0,1996,2020-07-04,334240.6,Sotheby's,online,New York,356,0,True,True,5,False,blue period
+Chen Lin,Untitled (6002),works_on_paper,75.4,25.7,0,2003,2020-07-30,271995.76,Doyle,online,London,371,3,True,False,5,True,
+Chen Lin,Untitled (6172),oil,220.3,290.7,0,1987,2020-08-18,11084483.24,Phillips,evening,Hong Kong,337,0,False,False,5,True,
+Chen Lin,Untitled (7148),oil,51.5,234.2,0,1989,2020-08-29,5112006.64,Phillips,evening,Hong Kong,20,0,False,False,4,True,blue period
+Chen Lin,Untitled (9122),oil,151.5,80.2,0,2008,2021-01-04,4779557.47,Christie's,evening,London,27,2,False,False,4,True,blue period
+Chen Lin,Untitled (9947),oil,118.2,136.2,0,1998,2021-02-23,2142911.11,Christie's,day,New York,453,0,False,True,3,True,
+Chen Lin,Untitled (9203),print,22.3,35.3,0,2006,2021-03-09,45497.07,Christie's,day,Los Angeles,121,0,False,False,4,False,
+Chen Lin,Untitled (8267),oil,160.9,245.9,0,1980,2021-03-12,3093693.72,Doyle,online,London,177,1,False,True,3,True,blue period
+Chen Lin,Untitled (2249),oil,201.0,69.6,0,2005,2021-05-12,3665043.47,Phillips,evening,Hong Kong,262,1,False,False,4,False,
+Chen Lin,Untitled (1480),oil,138.4,118.7,0,1995,2021-07-03,2949111.59,Christie's,day,Hong Kong,520,1,True,False,4,True,studies
+Chen Lin,Untitled (8642),works_on_paper,72.7,98.4,0,1992,2021-07-12,453930.43,Bonhams,day,London,429,1,False,False,4,True,
+Chen Lin,Untitled (3987),print,80.3,77.6,0,2003,2021-08-13,306056.3,Christie's,day,Paris,447,0,False,False,5,True,studies
+Chen Lin,Untitled (5932),oil,84.9,211.9,0,1979,2022-01-25,6119564.14,Sotheby's,evening,New York,526,1,True,False,4,True,
+Chen Lin,Untitled (267),oil,182.9,62.3,0,2001,2022-03-28,3872826.88,Phillips,evening,Hong Kong,366,1,False,False,4,True,
+Chen Lin,Untitled (2420),oil,65.7,266.3,0,1999,2022-05-05,8046093.06,Christie's,evening,New York,242,1,True,False,5,True,blue period
+Chen Lin,Untitled (1769),oil,150.8,285.8,0,1980,2022-05-14,4180421.76,Doyle,online,Los Angeles,503,1,False,True,5,True,
+Chen Lin,Untitled (8692),print,78.1,46.7,0,1989,2022-06-15,475746.1,Sotheby's,evening,London,221,1,True,True,5,True,blue period
+Chen Lin,Untitled (1875),print,25.1,28.1,0,1987,2023-01-12,92353.71,Sotheby's,evening,Hong Kong,565,1,False,False,5,True,
+Chen Lin,Untitled (7771),print,50.1,108.8,0,2004,2023-01-30,433854.55,Sotheby's,evening,London,69,1,True,False,5,True,
+Chen Lin,Untitled (7841),oil,98.2,210.8,0,1984,2023-06-17,2825196.34,Phillips,day,London,187,0,False,False,4,True,
+Chen Lin,Untitled (5777),oil,134.9,152.0,0,1989,2023-07-13,4861925.33,Christie's,day,Hong Kong,446,1,False,False,4,True,
+Chen Lin,Untitled (4688),oil,193.2,285.3,0,1980,2023-08-03,16581762.24,Christie's,evening,New York,366,2,False,False,4,True,
+Chen Lin,Untitled (2254),oil,190.6,286.2,0,1983,2023-08-07,8245036.16,Phillips,day,New York,159,1,True,True,5,True,
+Chen Lin,Untitled (8508),works_on_paper,80.6,53.2,0,1985,2023-11-15,389956.15,Bonhams,day,Chicago,274,1,False,False,4,True,

@@ -45,6 +45,41 @@ The standalone HTML doesn't include the API/scraper integrations
 (those need a Python server). For Apify, MutualArt, etc., use the
 Streamlit version below.
 
+## Valuing your own collection
+
+Step 5 in `index.html` ("Your portfolio") takes a CSV of works you own
+and values each one as if it sold at auction on a date you pick, using
+the sales history loaded in step 1. You get a per-work table, portfolio
+totals (now and at the horizon), unrealized gain against what you paid,
+and a downloadable results CSV.
+
+Portfolio CSV columns:
+
+| column | required | notes |
+|---|---|---|
+| artist | yes | must match the artist name in the sales data |
+| medium | yes | oil, acrylic, works_on_paper, print, sculpture, ... (aliases like "oil on canvas" are normalized) |
+| height_cm, width_cm | yes | |
+| year_created | yes | |
+| title | no | display only |
+| depth_cm | no | sculpture |
+| acquired_price_usd, acquired_date | no | enables the gain columns |
+| provenance_score (0–3), exhibited, published, condition (1–5), signed, series | no | same meaning as in the sales schema |
+
+How each work is valued: the auction house and location default to
+where that artist sells most often in the loaded data; the sale type
+(evening / day / online / regional) is one global scenario you choose.
+Works by artists with fewer than 6 sales are listed but not valued.
+`sample_data/sample_portfolio.csv` is a 7-work example you can load with
+the **Use sample portfolio** button.
+
+Same thing from the command line (`predictor/portfolio.py`):
+
+```bash
+python -m predictor.portfolio --sales data/sales.csv --portfolio my_portfolio.csv \
+    --out valued.csv --sale-type day --date 2026-10-11 --horizon 10 --drift 0.0
+```
+
 ## Streamlit version (Python)
 
 ```bash

@@ -1,0 +1,4 @@
+# Runtime state & secrets — never commit these
+.autopost_state.json
+autopost.log
+.env

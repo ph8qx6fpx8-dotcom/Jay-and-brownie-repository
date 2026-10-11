@@ -85,13 +85,14 @@ runs the scrape on its own infrastructure).
 
 ## Data sources
 
-The app supports five sources, configurable from the sidebar:
+The app supports six sources, configurable from the sidebar:
 
 | Source | Status | Setup |
 |---|---|---|
 | **CSV upload** | Always works | Upload a CSV matching the schema in `predictor/schema.py` |
 | **Artnet partner API** | Stub adapter, needs your endpoint | Set `ARTNET_API_KEY` and `ARTNET_BASE_URL` in `.env` |
 | **MutualArt partner API** | Stub adapter, needs your endpoint | Set `MUTUALART_API_KEY` and `MUTUALART_BASE_URL` in `.env` |
+| **LiveArt AI API** | Two-step fetch (artist lookup → sales); verify field names against your plan | Set `LIVEART_API_KEY` in `.env` (base URL optional) |
 | **Christie's scraper** | Skeleton; selectors need verification | Run the CLI once with `--dump-html` to inspect markup, then update SELECTORS at top of `predictor/scrapers/christies.py` |
 | **Apify actor** | Works as-is for any actor returning the right shape | Set `APIFY_API_TOKEN` in `.env`. Default actor is `parseforge/artsy-scraper` (asking prices, NOT auction prices) |
 

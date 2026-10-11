@@ -93,13 +93,22 @@ def pick_row(rows: list[dict], *, day: str | None, on_date: str | None) -> dict 
     return next((r for r in rows if r.get("publish_date", "").strip() == target), None)
 
 
-def validate_row(row: dict) -> None:
+def validate_row(row: dict, *, tolerant: bool = False) -> None:
+    """Validate a row. On a placeholder/missing image_url, exit 1 — or exit 0
+    (a clean skip) when `tolerant` is set, so an unconfigured scheduled run
+    (e.g. GitHub Actions before real image URLs are filled in) doesn't fail."""
+    def _stop(msg: str) -> None:
+        if tolerant:
+            log.warning("%s Skipping (tolerant mode).", msg)
+            sys.exit(0)
+        sys.exit(msg)
+
     missing = [k for k in ("image_url", "caption") if not row.get(k, "").strip()]
     if missing:
-        sys.exit(f"Row (day {row.get('day')}) missing required field(s): {', '.join(missing)}")
+        _stop(f"Row (day {row.get('day')}) missing required field(s): {', '.join(missing)}.")
     url = row["image_url"].strip()
     if url.startswith("[") or not url.lower().startswith("https://"):
-        sys.exit(
+        _stop(
             f"image_url for day {row.get('day')} is still a placeholder or not an https URL: "
             f"{url!r}. Replace it with a PUBLIC https image URL before publishing."
         )
@@ -194,6 +203,9 @@ def main() -> int:
     ap.add_argument("--date", dest="on_date", help="Publish the row for YYYY-MM-DD.")
     ap.add_argument("--dry-run", action="store_true", help="Show the post; call no API.")
     ap.add_argument("--force", action="store_true", help="Publish even if already marked done.")
+    ap.add_argument("--tolerant", action="store_true",
+                    help="Exit 0 (clean skip) instead of failing when today's row is a "
+                         "placeholder/unconfigured — useful for scheduled CI runs.")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
 
@@ -209,7 +221,7 @@ def main() -> int:
         log.info("No post scheduled for %s. Nothing to do.", where)
         return 0
 
-    validate_row(row)
+    validate_row(row, tolerant=args.tolerant)
     key = f"{row.get('publish_date','')}#{row.get('day','')}"
 
     state = load_state()

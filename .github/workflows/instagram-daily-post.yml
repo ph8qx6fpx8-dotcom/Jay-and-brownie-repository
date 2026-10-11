@@ -1,0 +1,76 @@
+name: Instagram daily post
+
+# Publishes the Sophia Martin Jewelry post scheduled for "today" from
+# marketing/posts.csv via the Instagram Graph API.
+#
+# SETUP (one-time) — see marketing/README.md for the full walkthrough:
+#   1. Instagram must be a Business/Creator account linked to a Facebook Page.
+#   2. In this repo: Settings -> Secrets and variables -> Actions -> New
+#      repository secret, add:
+#         IG_USER_ID        (numeric Instagram user id)
+#         IG_ACCESS_TOKEN   (long-lived access token; refresh ~every 60 days)
+#   3. Fill real PUBLIC https image URLs into marketing/posts.csv.
+#
+# Until IG_USER_ID is set, the scheduled run is skipped (see the job `if:`),
+# and until real image URLs are filled in, the run skips cleanly (--tolerant)
+# instead of failing — so you won't get daily failure emails before setup.
+
+on:
+  schedule:
+    # 15:00 UTC daily. GitHub cron is always UTC — adjust to your audience's
+    # peak. 15:00 UTC = 11:00 America/New_York (EDT) / 08:00 America/Los_Angeles.
+    - cron: "0 15 * * *"
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "Force a specific day number from posts.csv (optional)."
+        required: false
+        default: ""
+      dry_run:
+        description: "Preview only, make no API calls (true/false)."
+        required: false
+        default: "false"
+
+# Don't let two runs publish at once.
+concurrency:
+  group: instagram-daily-post
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    # Skip scheduled runs until the publishing secret is configured.
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.IG_CONFIGURED == 'true' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r marketing/requirements.txt
+
+      - name: Publish today's post
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          GRAPH_API_VERSION: "v21.0"
+        run: |
+          set -euo pipefail
+          ARGS="--tolerant -v"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -n "${{ github.event.inputs.day }}" ]; then
+              ARGS="$ARGS --day ${{ github.event.inputs.day }}"
+            fi
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+              ARGS="$ARGS --dry-run"
+            fi
+          fi
+          echo "Running: python marketing/instagram_autopost.py $ARGS"
+          python marketing/instagram_autopost.py $ARGS

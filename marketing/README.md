@@ -142,13 +142,36 @@ python marketing/instagram_autopost.py --date 2026-10-12
 
 (Better: keep the secrets in a file the cron job sources, not inline.)
 
-**macOS (launchd)** or **GitHub Actions** (a scheduled `workflow` with the
-token stored as an encrypted repo secret) work too. Whatever runs it daily is
-fine — the script itself is idempotent per day.
+**macOS (launchd)** works the same way. Whatever runs it daily is fine — the
+script is idempotent per day.
+
+#### GitHub Actions (no server needed) — included
+
+A ready-made workflow lives at `.github/workflows/instagram-daily-post.yml`.
+It runs daily and publishes today's post from `posts.csv`. To turn it on:
+
+1. **Add repo secrets** — repo **Settings → Secrets and variables → Actions →
+   New repository secret**:
+   - `IG_USER_ID` — your numeric Instagram user id
+   - `IG_ACCESS_TOKEN` — your long-lived access token (refresh ~every 60 days)
+2. **Add a repo variable** (same screen, **Variables** tab):
+   - `IG_CONFIGURED` = `true` — this is the on-switch. Until it's `true`, the
+     scheduled run is skipped, so you won't get failure emails before setup.
+3. **Fill real public https image URLs** into `posts.csv`. Until then, runs
+   skip cleanly (the workflow passes `--tolerant`) instead of failing.
+4. Adjust the `cron:` time in the workflow if needed — **GitHub cron is UTC**
+   (the default `0 15 * * *` = 11:00 America/New_York).
+5. Test anytime via **Actions → Instagram daily post → Run workflow**
+   (optionally set `dry_run: true`, or a specific `day`).
+
+> Note: GitHub Actions runners are ephemeral, so the per-day `.autopost_state.json`
+> doesn't persist between runs. That's fine for one scheduled run/day; the date
+> match prevents re-posting the wrong day. Avoid triggering the same day's post
+> both manually and on schedule.
 
 > ⚠️ **Don't commit secrets.** `.autopost_state.json` and any `.env`/`autopost.log`
-> are safe to gitignore. Store `IG_ACCESS_TOKEN` as an environment variable or
-> an encrypted secret — never in the repo.
+> are safe to gitignore. Store `IG_ACCESS_TOKEN` as an encrypted secret or env
+> var — never in the repo.
 
 ### Troubleshooting
 

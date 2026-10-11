@@ -2,3 +2,7 @@
 .autopost_state.json
 autopost.log
 .env
+
+# Python bytecode
+__pycache__/
+*.pyc

@@ -1,22 +1,60 @@
-# Sophia Martin Jewelry — Instagram Launch Campaign
+# Sophia Martin Jewelry — Marketing, PR & Advertising
 
-A ready-to-run 7-day Instagram launch campaign: strategy, a day-by-day content
-calendar, and a script that publishes one post per day via the Instagram Graph
-API.
+*Heirlooms Redefined — vintage heirlooms, beautifully reimagined.*
+
+A complete go-to-market kit for Sophia Martin Jewelry: three strategic plans
+(marketing, PR, advertising) plus a ready-to-run 7-day Instagram launch
+campaign and a script that publishes one post per day.
 
 ## Files
 
+### Strategic plans (read these first)
+
 | File | What it is |
 |---|---|
-| `campaign-strategy.md` | Goals, audience, brand voice, hashtag strategy, timing. Read first. |
+| `marketing-plan.md` | **Organic social media strategy** — 90-day objectives & KPIs, audience personas, messaging pillars, channel strategy (Instagram, Pinterest, TikTok, email), 6 content pillars, weekly posting framework, growth tactics, 30-60-90 roadmap. |
+| `pr-plan.md` | **PR & earned media** — 6 story angles, media target list, a ready-to-send press release, pitch templates, a tiered influencer/gifting strategy (with FTC guidance), a seasonal gift-guide calendar, partnerships, and a 90-day timeline. |
+| `advertising-plan.md` | **Paid social advertising** — full-funnel strategy (Meta primary, Pinterest secondary, Google, optional TikTok), Meta campaign/ad-set architecture, 10 ad-creative concepts, three illustrative budget tiers, measurement & kill/scale rules, 90-day flight plan. |
+
+### The 7-day launch campaign (ready to post)
+
+| File | What it is |
+|---|---|
+| `campaign-strategy.md` | Launch-week goals, audience, brand voice, hashtag strategy, timing. |
 | `content-calendar.md` | The 7 daily posts, fully written (caption, visual concept, CTA, hashtags). |
 | `posts.csv` | The same 7 posts as a spreadsheet — import into Later/Buffer/Meta Planner, or feed the script. |
 | `instagram_autopost.py` | Publishes the post scheduled for today via the Instagram Graph API. |
 | `requirements.txt` | Python dependency (`requests`). |
 
-> Everything in `[SQUARE BRACKETS]` is a placeholder — your real prices,
-> product names, promo code (`[LAUNCH10]`), and **public image URLs**. Fill
-> them in before you post.
+> Anything in `[SQUARE BRACKETS]` is a placeholder — your **public image URLs**,
+> specific review quotes, and any optional incentive code. Real product names
+> and prices are already filled in. Fill the brackets before you post.
+
+## Brand snapshot (source of truth for all the files above)
+
+- **Tagline:** *Heirlooms Redefined* · **Hero:** *Vintage Heirlooms, Beautifully Reimagined*
+- **What it is:** high-end, largely **one-of-a-kind** vintage & Art Deco fine
+  jewelry — necklaces, pendants, rings, and brooches — reimagined as wearable
+  heirlooms. Ethically sourced materials.
+- **Founder story:** Sophia Lapat, inspired by her father **Martin** (a lawyer
+  who reimagined Americana antiques into art); the brand is named for him.
+- **Prices:** ~$300 (Art Deco Crystal & Green Glass Pendant) to $3,500 (Diamond
+  Starburst Lariat).
+- **Scarcity is real:** pieces are one-of-a-kind — "when it's gone, it's gone"
+  is honest, so the campaign leans on that instead of discount codes.
+
+## Sales channels
+
+Primary: the Shopify site (**sophiamartinjewelry.com**). The brand **also sells
+on Etsy** (shop *SophiaMartinJewelry*) — worth layering into every plan:
+
+- **Marketing:** cross-link Etsy reviews as social proof; funnel some organic
+  traffic to whichever channel converts best.
+- **PR / SEO:** Etsy listings rank and build backlinks; keep titles/tags
+  keyword-rich (*Art Deco*, *vintage*, *one of a kind*, *heirloom*).
+- **Advertising:** consider **Etsy Ads** (on-platform) and **Etsy Offsite Ads**
+  in addition to Meta/Pinterest; keep a Google Shopping feed covering rings and
+  brooches, not just pendants.
 
 ## The simplest way to post (no code)
 

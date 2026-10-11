@@ -6,191 +6,230 @@ of the caption or as the first comment (be consistent).
 
 Posting time column is a suggestion — confirm against your Insights.
 
-Legend — **Pillar**: Hero / Craft / Styling / Story / Social proof / Offer.
+Legend — **Pillar**: Brand / Hero / Craft / Styling / Story / Social proof / Gifting / Scarcity.
+
+> **A note on tone:** every piece is one-of-a-kind vintage or Art Deco, so
+> scarcity is real — lean into *"when it's gone, it's gone"* rather than
+> discounts. Prefer elegant launch incentives (complimentary keepsake
+> packaging, free insured shipping, a personal note from Sophia) over a
+> percent-off code. Keep the voice warm, heritage-driven, and never
+> discount-screamy.
 
 ---
 
-## Day 1 — Launch announcement (Pillar: Story + Offer) · Format: Reel or carousel · ~11:00
+## Day 1 — Launch announcement (Pillar: Brand + Story) · Format: Reel or carousel · ~11:00
 
-**Visual:** A warm, cinematic intro — hands opening a Sophia Martin box, the
-hero piece catching daylight. End frame: logo + "Now open."
+**Visual:** A warm, cinematic intro — hands lifting a vintage piece from a
+Sophia Martin keepsake box against antique wallpaper and taper candlelight.
+The brown bow logo. End frame: "Heirlooms Redefined."
 
 **Caption:**
-> She's here. ✨
+> Heirlooms Redefined. ✨
 >
-> Sophia Martin Jewelry was made for the pieces you never take off — the ones
-> that become *yours*. Elevated everyday jewelry in `[14k gold / vermeil /
-> sterling silver]`, designed to be layered, lived in, and kept.
+> Welcome to Sophia Martin Jewelry — where vintage heirlooms are beautifully
+> reimagined into pieces you'll pass down. Each is a one-of-a-kind vintage or
+> Art Deco treasure, given new life to be worn and loved again.
 >
-> To celebrate launch week: **`[10% off]` your first order with code
-> `[LAUNCH10]`** — this week only.
+> The brand is named for Sophia's father, Martin — a lawyer by day with a
+> lifelong passion for Americana antiques, who reimagined old treasures into
+> new works of art. As a girl, Sophia trailed him through fine antique shows,
+> drawn to the trays of vintage jewelry. The simple silver heart pendant he
+> bought her there began a lifelong love.
 >
-> Tap the link in bio to shop the first collection. 🤍
+> To mark our opening, every piece arrives in complimentary keepsake packaging
+> with a personal note from Sophia. 🤎
 >
-> Which piece are you starting with? 👇
+> Tap the link in bio to explore the collection. Because each piece is one of
+> a kind — when it's gone, it's gone.
 
-**CTA:** Link in bio → shop · Save this for your wishlist.
+**CTA:** Link in bio → explore the collection · Save this for later.
 
 **Hashtags:**
-`#SophiaMartinJewelry #finejewelry #demifine #everydayjewelry #goldjewelry #jewelrylaunch #newbrand #jewelrylover #elevatedeveryday #WornBySophiaMartin`
+`#SophiaMartinJewelry #WornBySophiaMartin #vintagejewelry #artdeco #artdecojewelry #finejewelry #heirloomjewelry #antiquejewelry #oneofakind #estatejewelry`
 
 ---
 
-## Day 2 — Hero product spotlight (Pillar: Hero) · Format: Carousel · ~18:30
+## Day 2 — Hero piece spotlight (Pillar: Hero) · Format: Carousel · ~18:30
 
-**Visual:** 3–5 slides of your best-selling / signature piece `[PRODUCT
-NAME]`: on-model, flat-lay, macro detail, scale-on-wrist/neck, price slide.
+**Visual:** 3–5 slides of the **Diamond Starburst Lariat ($3,500)**: on-model
+at the neck, flat-lay on antique fabric, macro of the starburst detail, the
+lariat drop in motion, price/story slide.
 
 **Caption:**
-> Meet the `[PRODUCT NAME]`. 🤍
+> Meet the Diamond Starburst Lariat. 🤎
 >
-> `[One sentence on what makes it special — e.g. "A hand-finished 14k gold
-> chain weighted to sit perfectly, whether it's solo or stacked."]`
+> A true showpiece — diamonds set in a radiant starburst, falling into a
+> lariat drop that moves with you. A piece with history, reimagined to be worn
+> today.
 >
-> • `[Material: 14k solid gold / gold vermeil over sterling]`
-> • `[Detail: tarnish-resistant, hypoallergenic, water-safe]`
-> • `[$ PRICE]`
+> • 18k white gold, with diamonds
+> • Vintage Art Deco-revival design
+> • One of a kind — only one exists
+> • $3,500
 >
-> Swipe to see it on 👉 and save the look.
+> Swipe to see the detail up close. A lariat like this is never restocked,
+> because there is only ever one.
 >
-> Link in bio to make it yours — `[LAUNCH10]` for `[10% off]` this week.
+> Tap the link in bio to make it yours — complimentary keepsake packaging and
+> insured shipping on every order.
 
 **CTA:** Swipe · Save · Shop via bio.
 
 **Hashtags:**
-`#SophiaMartinJewelry #goldnecklace #layerednecklaces #demifine #finejewelry #jewelryaddict #everydayjewelry #giftforher #jewelrydesigner #WornBySophiaMartin`
+`#SophiaMartinJewelry #WornBySophiaMartin #diamondlariat #artdeco #vintagediamonds #finejewelry #statementnecklace #oneofakind #heirloomjewelry #whitegold`
 
 ---
 
-## Day 3 — Craft & materials (Pillar: Craft) · Format: Reel · ~12:00
+## Day 3 — Art Deco craft & history (Pillar: Craft) · Format: Reel · ~12:00
 
-**Visual:** Close-up, slow-motion macro of the metal/stones; text overlays
-calling out the quality points. Show a hallmark stamp if you have one.
+**Visual:** Close-up, slow macro of geometric detail, onyx-and-diamond
+contrast, a fringe drop catching candlelight; text overlays calling out the
+history points. Intersperse a hero piece (e.g. the Onyx & Ruby Fringe).
 
 **Caption:**
-> Why our pieces feel different 👇
+> What makes Art Deco jewelry unmistakable? 👇
 >
-> `[1 — The metal: e.g. "Real 14k gold, not plated — so it won't fade,
-> turn, or irritate your skin."]`
-> `[2 — The finish: e.g. "Hand-polished, then checked twice before it ships."]`
-> `[3 — Built to last: e.g. "Water-safe and tarnish-resistant — wear it in
-> the shower, the gym, the ocean."]`
+> 1 — Geometry: clean lines, symmetry, and bold architectural forms born in
+> the 1920s and '30s.
+> 2 — Contrast: onyx against diamond, ruby against gold — drama in every
+> pairing.
+> 3 — Craftsmanship: fringe drops, lariats, and starbursts hand-set by makers
+> whose work still dazzles a century later.
 >
-> Jewelry you don't have to baby. That's the whole point. 🤍
+> At Sophia Martin, we seek out these vintage and antique pieces and reimagine
+> them as heirlooms you can wear now — the history kept, the beauty renewed.
 >
-> Save this if quality matters to you.
+> Save this if Art Deco speaks to you. 🤎
 
-**CTA:** Save · Follow for more behind-the-scenes.
+**CTA:** Save · Follow for more on the pieces and their history.
 
 **Hashtags:**
-`#SophiaMartinJewelry #14kgold #finejewelry #jewelrycraftsmanship #solidgold #handmadejewelry #demifine #sustainablejewelry #jewelrylover #qualityoverquantity`
+`#SophiaMartinJewelry #WornBySophiaMartin #artdeco #artdecojewelry #vintagejewelry #antiquejewelry #jazzage #jewelryhistory #finejewelry #heirloomjewelry`
 
 ---
 
-## Day 4 — How to style / layering (Pillar: Styling) · Format: Carousel or Reel · ~19:00
+## Day 4 — How to style a statement heirloom (Pillar: Styling) · Format: Carousel or Reel · ~19:00
 
-**Visual:** One piece styled 3 ways, or a necklace-stacking / ring-stacking
-tutorial. Each slide = one look with the product names labeled.
+**Visual:** One statement piece worn 3 ways for modern life — with an open
+neckline, over a white shirt/knit, and layered with one delicate chain. Label
+the hero piece on each slide.
 
 **Caption:**
-> 3 ways to wear the `[PRODUCT NAME]` 🤍
+> How to style a statement heirloom for modern wear 🤎
 >
-> 1️⃣ **Solo** — clean and quiet for everyday.
-> 2️⃣ **Stacked** — layer with the `[PRODUCT 2]` for dimension.
-> 3️⃣ **Full look** — add `[PRODUCT 3]` to turn it up for the evening.
+> 1️⃣ Let it lead — a fringe pendant like the Art Deco Onyx & Ruby Fringe
+> ($1,500) against an open neckline, nothing competing.
+> 2️⃣ Soften it — a lariat worn over a crisp white shirt or knit for everyday
+> elegance.
+> 3️⃣ Layer with restraint — one delicate chain beneath a statement piece; let
+> the heirloom stay the hero.
 >
-> The trick to layering: vary the lengths and keep the metals in the same
-> family. Save this for your next getting-ready. 📌
+> A vintage piece doesn't need an occasion. The trick is to wear it like it's
+> always been yours — because soon, it will have.
 >
-> Shop the full stack via the link in bio.
+> Shop one-of-a-kind pieces via the link in bio.
 
-**CTA:** Save the layering guide · Shop the stack.
+**CTA:** Save the styling guide · Shop via bio.
 
 **Hashtags:**
-`#SophiaMartinJewelry #layeringnecklaces #howtostyle #jewelrystyling #stackingrings #goldjewelry #ootdjewelry #demifine #everydayjewelry #WornBySophiaMartin`
+`#SophiaMartinJewelry #WornBySophiaMartin #howtostyle #jewelrystyling #artdeco #vintagejewelry #statementnecklace #finejewelry #heirloomjewelry #oneofakind`
 
 ---
 
-## Day 5 — Social proof / founder story (Pillar: Social proof + Story) · Format: Carousel · ~11:30
+## Day 5 — Meet the artist + social proof (Pillar: Story + Social proof) · Format: Carousel · ~11:30
 
-**Visual:** A real customer review screenshot or UGC photo (with permission) +
-a founder slide: a photo of Sophia / the studio and a short note.
+**Visual:** A portrait of Sophia (and, if available, a photo or memento of her
+father Martin) in a warm, antique-styled setting; a slide for a real customer
+review or UGC photo (with permission).
 
 **Caption:**
-> "`[Paste a real customer review here — e.g. "I haven't taken it off in
-> three weeks." ]`" 🤍
+> Meet the artist behind the heirlooms. 🤎
 >
-> This is exactly why I started Sophia Martin Jewelry. `[1–2 sentences of
-> founder story — e.g. "I was tired of choosing between jewelry that looked
-> good and jewelry that lasted. So I made the kind I wanted to wear every
-> day."]`
+> Sophia Lapat grew up tagging along to fine antique shows with her father,
+> Martin — a lawyer by day, an Americana antiques devotee always, who
+> reimagined old treasures into new works of art. At those shows she was drawn
+> to the trays of vintage jewelry, and the silver heart pendant he bought her
+> sparked a love that became Sophia Martin Jewelry.
 >
-> Thank you to everyone who's worn us in launch week. Tag us or use
-> **#WornBySophiaMartin** and we'll reshare. 📸
+> Today she carries on his craft: sourcing vintage and Art Deco pieces and
+> reimagining each into a wearable heirloom.
 >
-> `[LAUNCH10]` is live for `[2 more days]` — link in bio.
+> "`[Paste a real customer review here — e.g. a note about a piece that became
+> a keepsake.]`"
+>
+> Tag us or use **#WornBySophiaMartin** and we'll reshare. 📸 Explore the
+> collection via the link in bio.
 
 **CTA:** Shop via bio · Tag us to be featured.
 
 **Hashtags:**
-`#SophiaMartinJewelry #customerlove #foundermade #smallbusiness #femalefounder #jewelrybrand #demifine #finejewelry #WornBySophiaMartin #supportsmallbusiness`
+`#SophiaMartinJewelry #WornBySophiaMartin #meettheartist #foundermade #femalefounder #vintagejewelry #artdeco #jewelrydesigner #heirloomjewelry #antiquejewelry`
 
 ---
 
-## Day 6 — Gifting angle (Pillar: Hero + Offer) · Format: Carousel · ~18:00
+## Day 6 — The heirloom gift (Pillar: Gifting) · Format: Carousel · ~18:00
 
-**Visual:** The piece in gift packaging; a "perfect for…" slide (birthday,
-anniversary, just because); a close-up of the box/card.
+**Visual:** A piece in its keepsake packaging with a handwritten note; a
+"perfect for…" slide (anniversary, milestone, just because); close-up of the
+box and the brown bow.
 
 **Caption:**
-> The easiest gift you'll give this year. 🎁
+> The most meaningful gift isn't new — it's an heirloom. 🎁
 >
-> Every order arrives in `[your packaging — e.g. "a keepsake box with a
-> handwritten card"]`, ready to give. Perfect for `[a birthday · an
-> anniversary · a "thinking of you"]` — or, honestly, yourself.
+> A vintage piece carries a story before it ever reaches her hands. Give the
+> Art Deco Crystal & Green Glass Pendant ($300) or the Diamond and Blue Topaz
+> Teardrop Pendant ($1,000) — one of a kind, and never to be repeated.
 >
-> `[Add any gifting perks — e.g. "Free gift wrap. Easy 30-day returns."]`
+> Every order arrives in complimentary keepsake packaging with a handwritten
+> note from Sophia, ready to give for an anniversary, a milestone, or simply
+> because. Insured shipping on every piece.
 >
-> Code `[LAUNCH10]` ends `[tomorrow]`. Link in bio. 🤍
+> Because it's one of a kind, the gift is truly only hers. 🤎
 >
-> Who are you shopping for? 👇
+> Who are you giving an heirloom to? 👇
 
-**CTA:** Shop the gift edit via bio · Comment who it's for.
+**CTA:** Shop the collection via bio · Comment who it's for.
 
 **Hashtags:**
-`#SophiaMartinJewelry #giftforher #giftideas #jewelrygift #giftsforher #demifine #finejewelry #treatyourself #everydayjewelry #WornBySophiaMartin`
+`#SophiaMartinJewelry #WornBySophiaMartin #heirloomgift #giftforher #jewelrygift #vintagejewelry #artdeco #finejewelry #oneofakind #meaningfulgifts`
 
 ---
 
-## Day 7 — Last call / urgency (Pillar: Offer) · Format: Reel or single image · ~11:00
+## Day 7 — One of a kind / last call (Pillar: Scarcity) · Format: Reel or single image · ~11:00
 
-**Visual:** Bold, simple. Hero piece + clear text: "Launch offer ends
-tonight." Clean countdown energy.
+**Visual:** Bold and elegant. A grid of this week's pieces fading to one, with
+clean text: "One of a kind. Never restocked." Antique, candlelit mood.
 
 **Caption:**
-> Last call. ⏳
+> One of a kind means one chance. ⏳
 >
-> Launch week ends **tonight** — code **`[LAUNCH10]`** for `[10% off]` your
-> first Sophia Martin piece disappears at midnight.
+> These pieces are vintage and Art Deco originals — reimagined, never
+> reproduced. The Art Deco Revival Pearl & Multi-Gemstone Fringe Pendant
+> ($2,000), the 18K White Gold Diamond and Topaz Pendant ($2,000), the Diamond
+> Starburst Lariat ($3,500) — when each is gone, it's gone. There is no
+> restock.
 >
-> If you've had `[PRODUCT NAME]` in your cart all week… this is your sign. 🤍
+> If a piece has been on your mind all week, this is your sign. 🤎
 >
-> Tap the link in bio before it's gone.
->
-> Thank you for an incredible first week. This is just the beginning. ✨
+> Tap the link in bio while it's still here. Thank you for making our first
+> week unforgettable — the search for the next heirlooms has already begun. ✨
 
-**CTA:** Shop now via bio · Turn on post notifications for what's next.
+**CTA:** Shop now via bio · Turn on post notifications for the next pieces.
 
 **Hashtags:**
-`#SophiaMartinJewelry #lastchance #launchweek #finejewelry #demifine #goldjewelry #everydayjewelry #shopsmall #jewelrylover #WornBySophiaMartin`
+`#SophiaMartinJewelry #WornBySophiaMartin #oneofakind #vintagejewelry #artdeco #finejewelry #heirloomjewelry #antiquejewelry #estatejewelry #lastchance`
 
 ---
 
 ## Daily Stories checklist (do this every day)
 
 - [ ] Reshare the day's feed post to Stories with a **Link sticker** to the
-      exact product page.
-- [ ] Add a **poll or question sticker** ("Gold or silver?" / "Which stack?").
-- [ ] One behind-the-scenes or packing-an-order Story for authenticity.
+      exact one-of-a-kind product page.
+- [ ] Add a **poll or question sticker** ("Which era speaks to you — Deco or
+      Victorian?" / "Lariat or fringe?").
+- [ ] One behind-the-scenes Story — sourcing at an antique show, or packing a
+      piece into its keepsake box — for authenticity and heritage feel.
+- [ ] Note which pieces are still available; once a one-of-a-kind sells, post a
+      tasteful "found its person" Story to reinforce real scarcity.
 - [ ] Reply to every DM and comment within a few hours — engagement in the
       first hour boosts reach.

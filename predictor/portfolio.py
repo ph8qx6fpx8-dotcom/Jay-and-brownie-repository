@@ -23,6 +23,10 @@ from predictor.model import ArtistPriceModel, fit_hedonic
 
 ACQUIRED_PRICE_USD = "acquired_price_usd"
 ACQUIRED_DATE = "acquired_date"
+# Optional: the owner's own appraisal/analytical estimate, shown next to the model's.
+EST_LOW = "est_value_low_usd"
+EST_MID = "est_value_mid_usd"
+EST_HIGH = "est_value_high_usd"
 
 PORTFOLIO_REQUIRED = [S.ARTIST, S.MEDIUM, S.HEIGHT_CM, S.WIDTH_CM, S.YEAR_CREATED]
 PORTFOLIO_OPTIONAL_DEFAULTS = {
@@ -30,6 +34,9 @@ PORTFOLIO_OPTIONAL_DEFAULTS = {
     S.DEPTH_CM: 0.0,
     ACQUIRED_PRICE_USD: 0.0,
     ACQUIRED_DATE: "",
+    EST_LOW: 0.0,
+    EST_MID: 0.0,
+    EST_HIGH: 0.0,
     S.PROVENANCE_SCORE: 0,
     S.EXHIBITED: False,
     S.PUBLISHED: False,
@@ -56,7 +63,7 @@ def validate_portfolio(df: pd.DataFrame) -> pd.DataFrame:
     out[S.MEDIUM] = out[S.MEDIUM].apply(S.normalize_medium)
     out[S.SERIES] = out[S.SERIES].astype(str)
     out[ACQUIRED_DATE] = out[ACQUIRED_DATE].astype(str)
-    for col in [S.HEIGHT_CM, S.WIDTH_CM, S.DEPTH_CM, ACQUIRED_PRICE_USD]:
+    for col in [S.HEIGHT_CM, S.WIDTH_CM, S.DEPTH_CM, ACQUIRED_PRICE_USD, EST_LOW, EST_MID, EST_HIGH]:
         out[col] = pd.to_numeric(out[col], errors="coerce").fillna(0.0)
     out[S.YEAR_CREATED] = pd.to_numeric(out[S.YEAR_CREATED], errors="coerce").fillna(0).astype(int)
     out[S.PROVENANCE_SCORE] = (
@@ -65,10 +72,6 @@ def validate_portfolio(df: pd.DataFrame) -> pd.DataFrame:
     out[S.CONDITION] = pd.to_numeric(out[S.CONDITION], errors="coerce").fillna(4).astype(int).clip(1, 5)
     for col in [S.EXHIBITED, S.PUBLISHED, S.SIGNED]:
         out[col] = out[col].apply(_to_bool)
-
-    bad = out[(out[S.HEIGHT_CM] <= 0) | (out[S.WIDTH_CM] <= 0)]
-    if not bad.empty:
-        raise S.SchemaError(f"{len(bad)} portfolio rows have missing/zero height or width.")
     return out.reset_index(drop=True)
 
 
@@ -128,6 +131,9 @@ def value_portfolio(
 
     rows = []
     for _, w in portfolio.iterrows():
+        acquired = float(w[ACQUIRED_PRICE_USD] or 0)
+        est_mid = float(w[EST_MID] or 0)
+        est_gain = est_mid - acquired if (acquired > 0 and est_mid > 0) else float("nan")
         base = {
             S.ARTIST: w[S.ARTIST],
             S.TITLE: w[S.TITLE],
@@ -137,10 +143,22 @@ def value_portfolio(
             S.YEAR_CREATED: w[S.YEAR_CREATED],
             ACQUIRED_PRICE_USD: w[ACQUIRED_PRICE_USD],
             ACQUIRED_DATE: w[ACQUIRED_DATE],
+            EST_LOW: float(w[EST_LOW] or 0),
+            EST_MID: est_mid,
+            EST_HIGH: float(w[EST_HIGH] or 0),
+            "est_gain_usd": est_gain,
+            "est_gain_pct": (est_gain / acquired * 100.0) if acquired > 0 and est_mid > 0 else float("nan"),
+            "n_sales": int(sales_counts.get(w[S.ARTIST], 0)),
         }
+        if w[S.HEIGHT_CM] <= 0 or w[S.WIDTH_CM] <= 0:
+            rows.append({**base, "status": "missing dimensions"})
+            continue
+        if w[S.YEAR_CREATED] <= 0:
+            rows.append({**base, "status": "missing year_created"})
+            continue
         m = model_for(w[S.ARTIST])
         if isinstance(m, str):
-            rows.append({**base, "status": m, "n_sales": int(sales_counts.get(w[S.ARTIST], 0))})
+            rows.append({**base, "status": m})
             continue
 
         scenario = artist_scenario(sales_df, w[S.ARTIST])
@@ -164,7 +182,6 @@ def value_portfolio(
         now = m.predict(lot, ci=ci)
         proj = m.project(lot, years=horizon_years, market_drift=market_drift, ci=ci)
         last = proj.iloc[-1]
-        acquired = float(w[ACQUIRED_PRICE_USD] or 0)
         gain = now["point_usd"] - acquired if acquired > 0 else float("nan")
         rows.append({
             **base,
@@ -192,7 +209,19 @@ def portfolio_totals(results: pd.DataFrame) -> dict:
     with_cost = ok[ok[ACQUIRED_PRICE_USD] > 0] if not ok.empty else ok
     total_cost = float(with_cost[ACQUIRED_PRICE_USD].sum()) if not with_cost.empty else 0.0
     now_on_cost = float(with_cost["now_point_usd"].sum()) if not with_cost.empty else 0.0
+    has_est = EST_MID in results.columns
+    est_rows = results[results[EST_MID] > 0] if has_est else results.iloc[0:0]
+    est_costed = est_rows[est_rows[ACQUIRED_PRICE_USD] > 0] if not est_rows.empty else est_rows
+    est_cost = float(est_costed[ACQUIRED_PRICE_USD].sum()) if not est_costed.empty else 0.0
+    est_mid_on_cost = float(est_costed[EST_MID].sum()) if not est_costed.empty else 0.0
     return {
+        "n_with_estimate": int(len(est_rows)),
+        "est_low_usd": float(est_rows[EST_LOW].sum()) if not est_rows.empty else 0.0,
+        "est_mid_usd": float(est_rows[EST_MID].sum()) if not est_rows.empty else 0.0,
+        "est_high_usd": float(est_rows[EST_HIGH].sum()) if not est_rows.empty else 0.0,
+        "est_cost_usd": est_cost,
+        "est_gain_usd": (est_mid_on_cost - est_cost) if est_cost > 0 else float("nan"),
+        "est_gain_pct": ((est_mid_on_cost - est_cost) / est_cost * 100.0) if est_cost > 0 else float("nan"),
         "n_works": int(len(results)),
         "n_valued": int(len(ok)),
         "n_skipped": int(len(results) - len(ok)),
@@ -242,6 +271,11 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Horizon:  {fmt(t['horizon_point_usd'])}  (range {fmt(t['horizon_low_usd'])} – {fmt(t['horizon_high_usd'])})")
     if t["acquired_total_usd"] > 0:
         print(f"Cost:     {fmt(t['acquired_total_usd'])}  → gain {fmt(t['gain_usd'])} ({t['gain_pct']:+.1f}%)")
+    if t["n_with_estimate"]:
+        line = f"Your est: {fmt(t['est_mid_usd'])}  (range {fmt(t['est_low_usd'])} – {fmt(t['est_high_usd'])}, {t['n_with_estimate']} works)"
+        if t["est_cost_usd"] > 0:
+            line += f"  vs cost {fmt(t['est_cost_usd'])} → {fmt(t['est_gain_usd'])} ({t['est_gain_pct']:+.1f}%)"
+        print(line)
     skipped = results[results["status"] != "ok"]
     for _, r in skipped.iterrows():
         print(f"  skipped: {r[S.ARTIST]} — {r[S.TITLE] or '(untitled)'}: {r['status']}", file=sys.stderr)

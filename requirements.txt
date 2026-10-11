@@ -8,3 +8,4 @@ beautifulsoup4>=4.12
 apify-client>=1.7
 python-dotenv>=1.0
 pytest>=7.4
+openpyxl>=3.1

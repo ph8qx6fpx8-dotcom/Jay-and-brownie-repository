@@ -73,6 +73,36 @@ Works by artists with fewer than 6 sales are listed but not valued.
 `sample_data/sample_portfolio.csv` is a 7-work example you can load with
 the **Use sample portfolio** button.
 
+Optional `est_value_low_usd / est_value_mid_usd / est_value_high_usd`
+columns carry your own estimates (an appraisal, or the figures from your
+tracking spreadsheet). They show up as a "Your estimate" column and
+totals, and are the only value shown for works the model cannot price.
+Works with missing dimensions or year are listed with a reason rather
+than rejected.
+
+### Importing the collection master spreadsheet
+
+`predictor/import_collection.py` turns the `Collection` sheet of
+`art_collection_master_*.xlsx` into that portfolio CSV:
+
+```bash
+python -m predictor.import_collection \
+    --xlsx data/art_collection_master_v10_3.xlsx \
+    --out data/collection_portfolio.csv
+```
+
+It converts inch dimensions to cm (preferring any "(... cm)" note),
+infers the medium from the title, parses the year ("1950s", "c. 1932-34",
+"n.d."), pulls the purchase date out of the Source column, and carries
+the sheet's Low / Mid / High estimates, cost, recommendation, liquidity,
+confidence, cost evidence and notes through as extra columns. Rows the
+sheet marks as TBD stay in the CSV with blank sizes. The spreadsheet
+remains the source of truth — re-run the import after editing it.
+
+When the page is hosted alongside `data/collection_portfolio.csv`, the
+**Load my collection** button in step 5 loads it directly; from a local
+file, upload the CSV instead.
+
 Same thing from the command line (`predictor/portfolio.py`):
 
 ```bash

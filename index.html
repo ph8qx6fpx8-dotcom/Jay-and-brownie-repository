@@ -181,6 +181,7 @@
   <p style="margin: 0 0 12px;"><small class="hint">Upload the works you own. Each one is valued as if it sold at auction on the valuation date, using that artist's sales history from step 1. House and location default to where that artist sells most often.</small></p>
   <div class="row data-actions">
     <button id="load-sample-portfolio">Use sample portfolio</button>
+    <button id="load-collection" title="Loads data/collection_portfolio.csv from the same folder as this page (works when hosted; not from a local file)">Load my collection</button>
     <span>or</span>
     <input type="file" id="portfolio-input" accept=".csv,text/csv">
     <small class="hint">Columns: artist, medium, height_cm, width_cm, year_created (+ optional title, depth_cm, acquired_price_usd, acquired_date, provenance_score, exhibited, published, condition, signed, series)</small>
@@ -208,7 +209,8 @@
   <details class="hidden" id="pf-caveats">
     <summary>How to read this</summary>
     <ul>
-      <li>"Value now" is what the model expects the work to fetch at auction on the valuation date under the chosen scenario — not a guaranteed sale price.</li>
+      <li>"Model value" is what the regression expects the work to fetch at auction on the valuation date under the chosen scenario — not a guaranteed sale price. It needs ≥6 past sales for that artist in the loaded data.</li>
+      <li>"Your estimate" is the low/mid/high you supplied in the CSV (e.g. from your own spreadsheet). It is shown as-is and is the only figure for works the model cannot value.</li>
       <li>The portfolio range sums each work's low and high bounds. That is a conservative envelope: it assumes every work lands at its low (or high) at once.</li>
       <li>Gains compare "value now" to <code>acquired_price_usd</code> and ignore buyer's/seller's premiums, taxes, and holding costs.</li>
       <li>Works by artists with fewer than 6 sales in the loaded data are listed but not valued.</li>
@@ -887,6 +889,7 @@ const PF_CSV_COLUMNS = [
   'now_point_usd', 'now_low_usd', 'now_high_usd',
   'horizon_year', 'horizon_point_usd', 'horizon_low_usd', 'horizon_high_usd',
   'gain_usd', 'gain_pct',
+  'est_value_low_usd', 'est_value_mid_usd', 'est_value_high_usd', 'est_gain_usd', 'est_gain_pct',
 ];
 let PORTFOLIO = null;
 let PF_RESULTS = null;
@@ -896,18 +899,19 @@ function validatePortfolio(rawRows) {
   if (!rawRows.length) throw new Error('Portfolio CSV is empty.');
   const missing = PF_REQUIRED.filter(c => !(c in rawRows[0]));
   if (missing.length) throw new Error('Portfolio is missing required columns: ' + missing.join(', '));
-  return rawRows.map((r, i) => {
-    const h = toNum(r.height_cm, 0), w = toNum(r.width_cm, 0);
-    if (h <= 0 || w <= 0) throw new Error(`Portfolio row ${i + 2}: missing or zero height/width.`);
+  return rawRows.map(r => {
     return {
       artist: String(r.artist).trim(),
       title: r.title || '',
       medium: normalizeMedium(r.medium),
-      height_cm: h, width_cm: w,
+      height_cm: toNum(r.height_cm, 0), width_cm: toNum(r.width_cm, 0),
       depth_cm: toNum(r.depth_cm, 0),
       year_created: Math.trunc(toNum(r.year_created, 0)),
       acquired_price_usd: toNum(r.acquired_price_usd, 0),
       acquired_date: r.acquired_date || '',
+      est_value_low_usd: toNum(r.est_value_low_usd, 0),
+      est_value_mid_usd: toNum(r.est_value_mid_usd, 0),
+      est_value_high_usd: toNum(r.est_value_high_usd, 0),
       provenance_score: Math.max(0, Math.min(3, Math.trunc(toNum(r.provenance_score, 0)))),
       exhibited: toBool(r.exhibited),
       published: toBool(r.published),
@@ -957,12 +961,20 @@ function valuePortfolio(salesRows, works, opts) {
     return m;
   };
   return works.map(w => {
+    const acquired = w.acquired_price_usd > 0 ? w.acquired_price_usd : 0;
+    const estMid = w.est_value_mid_usd > 0 ? w.est_value_mid_usd : 0;
+    const estGain = acquired > 0 && estMid > 0 ? estMid - acquired : NaN;
     const base = {
       artist: w.artist, title: w.title, medium: w.medium,
       height_cm: w.height_cm, width_cm: w.width_cm, year_created: w.year_created,
       acquired_price_usd: w.acquired_price_usd, acquired_date: w.acquired_date,
+      est_value_low_usd: w.est_value_low_usd, est_value_mid_usd: estMid, est_value_high_usd: w.est_value_high_usd,
+      est_gain_usd: estGain,
+      est_gain_pct: acquired > 0 && estMid > 0 ? estGain / acquired * 100 : NaN,
       n_sales: counts.get(w.artist) || 0,
     };
+    if (w.height_cm <= 0 || w.width_cm <= 0) return { ...base, status: 'missing dimensions' };
+    if (w.year_created <= 0) return { ...base, status: 'missing year_created' };
     const m = modelFor(w.artist);
     if (typeof m === 'string') return { ...base, status: m };
     const sc = artistScenario(salesRows, w.artist);
@@ -976,7 +988,6 @@ function valuePortfolio(salesRows, works, opts) {
     const now = predict(m, lot);
     const proj = project(m, lot, opts.horizon, opts.drift);
     const last = proj[proj.length - 1];
-    const acquired = w.acquired_price_usd > 0 ? w.acquired_price_usd : 0;
     const gain = acquired > 0 ? now.point - acquired : NaN;
     return {
       ...base,
@@ -1001,7 +1012,18 @@ function portfolioTotals(results) {
   const costed = ok.filter(r => r.acquired_price_usd > 0);
   const cost = sum(costed, 'acquired_price_usd');
   const nowOnCost = sum(costed, 'now_point_usd');
+  const estRows = results.filter(r => r.est_value_mid_usd > 0);
+  const estCosted = estRows.filter(r => r.acquired_price_usd > 0);
+  const estCost = sum(estCosted, 'acquired_price_usd');
+  const estMidOnCost = sum(estCosted, 'est_value_mid_usd');
   return {
+    n_with_estimate: estRows.length,
+    est_low_usd: sum(estRows, 'est_value_low_usd'),
+    est_mid_usd: sum(estRows, 'est_value_mid_usd'),
+    est_high_usd: sum(estRows, 'est_value_high_usd'),
+    est_cost_usd: estCost,
+    est_gain_usd: estCost > 0 ? estMidOnCost - estCost : NaN,
+    est_gain_pct: estCost > 0 ? (estMidOnCost - estCost) / estCost * 100 : NaN,
     n_works: results.length,
     n_valued: ok.length,
     n_skipped: results.length - ok.length,
@@ -1064,32 +1086,42 @@ function renderPortfolio(results, opts) {
   const pct = v => Number.isFinite(v) ? `${v >= 0 ? '+' : ''}${v.toFixed(1)}%` : '—';
   const cls = v => Number.isFinite(v) ? (v >= 0 ? 'pos' : 'neg') : '';
 
+  const hasEst = t.n_with_estimate > 0;
   const totals = document.getElementById('pf-totals');
-  totals.innerHTML = `
-    <div class="stat headline"><div class="label">Portfolio value now</div><div class="value">${fmt(t.now_point_usd)}</div><div class="sub">range ${fmt(t.now_low_usd)} – ${fmt(t.now_high_usd)}</div></div>
-    <div class="stat"><div class="label">Value in ${horizonYear}</div><div class="value">${fmt(t.horizon_point_usd)}</div><div class="sub">range ${fmt(t.horizon_low_usd)} – ${fmt(t.horizon_high_usd)}</div></div>
-    <div class="stat"><div class="label">Cost basis</div><div class="value">${t.acquired_total_usd > 0 ? fmt(t.acquired_total_usd) : '—'}</div><div class="sub">${t.acquired_total_usd > 0 ? 'works with a purchase price' : 'add acquired_price_usd to see gains'}</div></div>
-    <div class="stat"><div class="label">Unrealized gain</div><div class="value ${cls(t.gain_usd)}">${money(t.gain_usd)}</div><div class="sub">${pct(t.gain_pct)} on cost</div></div>
-    <div class="stat"><div class="label">Works valued</div><div class="value">${t.n_valued} / ${t.n_works}</div><div class="sub">${t.n_skipped ? t.n_skipped + ' skipped — see table' : 'all works valued'}</div></div>`;
+  const modelCards = t.n_valued > 0 ? `
+    <div class="stat headline"><div class="label">Model value now</div><div class="value">${fmt(t.now_point_usd)}</div><div class="sub">range ${fmt(t.now_low_usd)} – ${fmt(t.now_high_usd)} · ${t.n_valued} work${t.n_valued === 1 ? '' : 's'}</div></div>
+    <div class="stat"><div class="label">Model value in ${horizonYear}</div><div class="value">${fmt(t.horizon_point_usd)}</div><div class="sub">range ${fmt(t.horizon_low_usd)} – ${fmt(t.horizon_high_usd)}</div></div>
+    <div class="stat"><div class="label">Cost of valued works</div><div class="value">${t.acquired_total_usd > 0 ? fmt(t.acquired_total_usd) : '—'}</div><div class="sub">${t.acquired_total_usd > 0 ? 'works with a purchase price' : 'add acquired_price_usd to see gains'}</div></div>
+    <div class="stat"><div class="label">Model gain</div><div class="value ${cls(t.gain_usd)}">${money(t.gain_usd)}</div><div class="sub">${pct(t.gain_pct)} on cost</div></div>` : '';
+  const estCards = hasEst ? `
+    <div class="stat ${t.n_valued > 0 ? '' : 'headline'}"><div class="label">Your estimate (mid)</div><div class="value">${fmt(t.est_mid_usd)}</div><div class="sub">range ${fmt(t.est_low_usd)} – ${fmt(t.est_high_usd)} · ${t.n_with_estimate} work${t.n_with_estimate === 1 ? '' : 's'}</div></div>
+    <div class="stat"><div class="label">Cost of estimated works</div><div class="value">${t.est_cost_usd > 0 ? fmt(t.est_cost_usd) : '—'}</div><div class="sub">works with both a price paid and your estimate</div></div>
+    <div class="stat"><div class="label">Gain on your estimate</div><div class="value ${cls(t.est_gain_usd)}">${money(t.est_gain_usd)}</div><div class="sub">${pct(t.est_gain_pct)} on cost</div></div>` : '';
+  totals.innerHTML = modelCards + estCards + `
+    <div class="stat"><div class="label">Works</div><div class="value">${t.n_works}</div><div class="sub">${t.n_valued} model-valued · ${t.n_skipped} not${hasEst ? ` · ${t.n_with_estimate} with your estimate` : ''}</div></div>`;
   totals.classList.remove('hidden');
 
   const head = `<thead><tr>
     <th>Artist</th><th>Title</th><th>Medium</th><th class="num">H × W (cm)</th><th class="num">Year</th>
-    <th>Scenario</th><th class="num">Value now</th><th class="num">80% range</th><th class="num">Value ${horizonYear}</th>
-    <th class="num">Cost</th><th class="num">Gain</th><th class="num">Sales used</th></tr></thead>`;
+    <th>Scenario</th><th class="num">Model value</th><th class="num">80% range</th><th class="num">Model ${horizonYear}</th>
+    ${hasEst ? '<th class="num">Your est. (mid)</th>' : ''}<th class="num">Cost</th><th class="num">Gain</th><th class="num">Sales used</th></tr></thead>`;
   const body = results.map(r => {
     const lead = `<td>${esc(r.artist)}</td><td>${esc(r.title)}</td><td>${r.medium}</td>
-      <td class="num">${r.height_cm} × ${r.width_cm}</td><td class="num">${r.year_created || ''}</td>`;
+      <td class="num">${r.height_cm > 0 ? `${r.height_cm} × ${r.width_cm}` : '—'}</td><td class="num">${r.year_created || '—'}</td>`;
+    const estCell = hasEst ? `<td class="num">${r.est_value_mid_usd > 0 ? `${fmt(r.est_value_mid_usd)}<div class="sub">${fmt(r.est_value_low_usd)} – ${fmt(r.est_value_high_usd)}</div>` : '—'}</td>` : '';
+    const costCell = `<td class="num">${r.acquired_price_usd > 0 ? fmt(r.acquired_price_usd) : '—'}</td>`;
     if (r.status !== 'ok') {
-      return `<tr>${lead}<td colspan="7" class="error-cell">${esc(r.status)}</td></tr>`;
+      const estGain = Number.isFinite(r.est_gain_usd)
+        ? `<span class="${cls(r.est_gain_usd)}">${money(r.est_gain_usd)} (${pct(r.est_gain_pct)})</span><div class="sub">on your estimate</div>` : '—';
+      return `<tr>${lead}<td colspan="4" class="error-cell">${esc(r.status)}</td>${estCell}${costCell}<td class="num">${estGain}</td><td class="num">${r.n_sales}</td></tr>`;
     }
     return `<tr>${lead}
       <td>${esc(r.scenario_house)} · ${esc(r.scenario_location)} · ${r.scenario_sale_type}</td>
       <td class="num"><strong>${fmt(r.now_point_usd)}</strong></td>
       <td class="num">${fmt(r.now_low_usd)} – ${fmt(r.now_high_usd)}</td>
       <td class="num">${fmt(r.horizon_point_usd)}</td>
-      <td class="num">${r.acquired_price_usd > 0 ? fmt(r.acquired_price_usd) : '—'}</td>
-      <td class="num ${cls(r.gain_usd)}">${money(r.gain_usd)}${Number.isFinite(r.gain_pct) ? ` (${pct(r.gain_pct)})` : ''}</td>
+      ${estCell}${costCell}
+      <td class="num ${cls(r.gain_usd)}">${money(r.gain_usd)}${Number.isFinite(r.gain_pct) ? ` (${pct(r.gain_pct)})` : ''}<div class="sub">on model value</div></td>
       <td class="num">${r.n_sales}</td></tr>`;
   }).join('');
   document.getElementById('pf-table').innerHTML = head + '<tbody>' + body + '</tbody>';
@@ -1141,6 +1173,17 @@ document.getElementById('lot-form').addEventListener('submit', e => {
 
 document.getElementById('pf-date').value = localISO(new Date());
 document.getElementById('load-sample-portfolio').addEventListener('click', () => loadPortfolio(SAMPLE_PORTFOLIO_CSV));
+document.getElementById('load-collection').addEventListener('click', async () => {
+  const status = document.getElementById('portfolio-status');
+  showStatus(status, 'Loading data/collection_portfolio.csv…');
+  try {
+    const resp = await fetch('data/collection_portfolio.csv', { cache: 'no-store' });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    loadPortfolio(await resp.text());
+  } catch (e) {
+    showStatus(status, `Couldn't load data/collection_portfolio.csv (${e.message}). If you opened this page as a local file, upload the CSV instead.`, false);
+  }
+});
 document.getElementById('portfolio-input').addEventListener('change', e => {
   const file = e.target.files[0]; if (!file) return;
   const reader = new FileReader();

@@ -338,4 +338,46 @@ Because purchase volume is low, **lean on ATC rate, cost/ATC, CTR, and hook rate
 
 ---
 
+## 10. Etsy Ads & Offsite Ads
+
+The brand already sells on Etsy (shop **SophiaMartinJewelry**), where buyer intent for "vintage," "Art Deco," "one of a kind," and "estate" is native. Etsy's two ad products let paid spend ride that intent, and they complement — rather than duplicate — the Meta/Pinterest/Google plan above.
+
+### Etsy Ads (on-platform)
+- **What it is:** promoted listings shown in Etsy search and browse. You set a **daily budget** and Etsy runs a CPC auction for you; you don't hand-bid per keyword the way you would in Google Ads, so the main levers are budget, which listings you promote, and listing quality/SEO (titles, all 13 tags, photos, video, conversion rate).
+- **How to run it:** promote your **best-converting, best-photographed listings** across the full range (not just pendants); let Etsy's auction allocate. Because relevance is driven by the organic listing's SEO, Etsy Ads and Etsy SEO rise together — fix the listing before pouring in spend.
+- **Scarcity fit:** single-quantity "1 available" listings are normal on Etsy, so a promoted listing that sells simply drops out; keep enough live inventory promoted that the daily budget has somewhere to go.
+- **⚠️ Budget guidance (illustrative):** start small — e.g. **~$3–$10/day (~$90–$300/mo)** — purely to learn which listings and categories convert, then scale only the winners. Validate against Etsy's own reported CPC and conversion data in the first 30 days.
+
+### Etsy Offsite Ads
+- **What it is:** Etsy advertises your listings *off* Etsy (on Google, Meta, Pinterest, Bing, etc.) and you pay an **Offsite Ads fee only when a shopper clicks one of those ads and buys from your shop within the attribution window** — it is a performance fee on an attributed sale, not a managed budget you control.
+- **Fee & enrollment note (⚠️ verify current terms):** the fee is a percentage of the order (commonly cited around **12–15% depending on the shop's trailing-12-month revenue**), and higher-revenue shops are **mandatorily enrolled** and cannot opt out. Confirm the exact current percentage, revenue threshold, opt-out eligibility, and fee cap in Etsy's seller policies before modeling margins — these terms change.
+- **Why it matters for strategy:** Offsite Ads can *overlap* the same Google/Meta/Pinterest surfaces this plan already buys on. Watch for **double-paying** — e.g. your own Meta retargeting and an Etsy Offsite Ad both chasing the same buyer. Decide deliberately which storefront (Shopify vs. Etsy) owns which audience, and account for the Offsite fee as a real cost when comparing Etsy's blended economics to direct-site ROAS.
+
+### How Etsy ads complement Meta/Pinterest
+- **Meta** stays the storytelling/brand-building and retargeting workhorse pointing to the Shopify site; **Pinterest** captures high-intent "Art Deco / vintage" planners; **Google** captures branded + category search.
+- **Etsy Ads** harvest in-marketplace intent the other channels can't reach (shoppers who only ever search inside Etsy), while **Offsite Ads** are a hands-off, pay-per-sale supplement — useful for incremental Etsy sales but not a substitute for the controllable, trackable direct-site funnel. Treat Etsy spend as a **discovery/entry-price lane** and keep higher-AOV statement pieces ($2,000–$3,500) anchored to the owned Shopify funnel where margin and data are fullest.
+
+---
+
+## 11. Catalog & creative across the full range
+
+The creative concepts (Section 5) and catalog guidance (Sections 3.3, 4, 7) lean pendant-heavy, but the product feed and ad angles must cover the **full range — necklaces, pendants, rings, and brooches.** Rings and brooches are currently under-represented in the catalog and in creative, and each has a distinct, high-value ad audience.
+
+### Build the feed to include rings and brooches
+- **Complete, categorized product feed.** Ensure the Shopify catalog (and the Meta, Pinterest, and Google Merchant Center feeds built from it) includes every ring and brooch, not just pendants/necklaces — with correct **product category, material, gemstone, and `product_type`** fields so each piece is eligible for category-targeted shopping ads and dynamic retargeting.
+- **One-of-a-kind hygiene applies doubly.** Rings and brooches are also single-quantity; keep feed sync frequent so a sold ring/brooch drops from DPA within hours, and use collection-level creative so no single-SKU ad dies when its piece sells (same mandate as Section 3.3).
+- **Feed completeness lifts PMax/Shopping.** Google Performance Max and Shopping, and Pinterest Shopping Ads, can only harvest ring/brooch demand if those items are *in the feed with clean attributes* — otherwise the brand pays to rank only for pendant terms.
+
+### Category-specific ad angles
+- **Rings → bridal & anniversary.** Position genuine Art Deco/vintage rings as the **one-of-a-kind engagement-ring alternative** and as anniversary/milestone pieces. Target the bridal and anniversary interest/keyword sets already noted (Art Deco bridal, vintage engagement ring) on Meta and Pinterest; this is a high-AOV, high-intent lane that pendants don't serve. Creative: stacking vintage rings, the cocktail/statement ring close-up, "skip the mass-market solitaire."
+- **Brooches → the trend-led, high-save audience.** Brooches are having a revival and are highly **saveable/shareable** — ideal fuel for TOF discovery and Pinterest. Creative: "the brooch is back" and "5 ways to wear a vintage brooch" (lapel, collar, bag, hat, as a pendant). This reaches a design-led audience that saves and returns, feeding the retargeting pool cheaply.
+- **Keep the price ladder visible per category** so each category has an entry point and an aspiration anchor, not just pendants.
+
+### Pinterest & Google Shopping feed notes for these categories
+- **Pinterest:** add ring and brooch terms to keyword targeting — "vintage engagement ring," "Art Deco ring," "antique diamond ring," "vintage brooch," "Deco brooch," "how to wear a brooch" — and promote ring/brooch Shopping and Collections ads, not only pendant pins. Pinners plan bridal and styling purchases, so both categories are a strong native fit.
+- **Google Shopping / PMax:** ensure Merchant Center shows rings and brooches with accurate titles/attributes so they can serve on category and bridal searches; add ring/brooch category terms to non-brand coverage. Clean titles ("Art Deco Vintage Cocktail Ring — One of a Kind") improve match quality the same way Etsy SEO does.
+- **⚠️ Note:** any added budget for ring/brooch angles is an illustrative reallocation within the existing tiers (Section 6), to be validated against each category's own observed ROAS/CPA within the first 30–60 days.
+
+---
+
 *Prepared as a strategic starting framework for Sophia Martin Jewelry. All benchmarks, budget splits, and ROAS/CPA targets are illustrative estimates (⚠️) to be validated and replaced with the brand's own first-party performance data within the first 30–60 days of spend.*

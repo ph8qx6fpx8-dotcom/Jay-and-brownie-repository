@@ -332,6 +332,35 @@ Keep a **second tab** for the *pitch pipeline*: Outlet · Editor · Beat · Angl
 
 ---
 
+## 11. Etsy & marketplace PR/SEO
+
+The brand's Etsy shop (**SophiaMartinJewelry**) is both a sales channel and an earned-discovery engine, and it belongs in the PR plan because marketplace visibility and press visibility reinforce each other.
+
+- **Listings earn backlinks and discovery.** A well-optimized Etsy shop ranks in both Etsy's internal search *and* general web search for long-tail terms ("one of a kind Art Deco fringe pendant," "vintage estate brooch"). Keep listing titles, tags, and descriptions keyword-rich (`Art Deco`, `vintage`, `one of a kind`, `heirloom`, `estate`, `Jazz Age`) so marketplace and organic search both surface the brand. The Etsy "About" section should carry the father-daughter Martin narrative and the brand story — it is a credibility asset, not just a product page.
+- **Etsy editor curations & gift guides.** Etsy's editorial team builds themed collections and seasonal/holiday gift guides. Being featured is earned media in its own right. Treat Etsy's editors like any other target: make pieces eligible (complete, high-quality listings with strong photography and video), pitch into the same seasonal windows as Section 7, and lean into the genuinely unique, vintage, and gift-worthy angles Etsy curations favor. `[Confirm current Etsy editorial submission/seller-marketing channels before pitching.]`
+- **Etsy "Star Seller."** Earning and displaying the **Star Seller** badge (consistent fast response, on-time shipping, and strong reviews) is a trust signal that lowers the purchase hesitation of a first-time, higher-price buyer — the same job PR does off-platform. Operationalize the review-and-response discipline needed to win and hold it.
+- **Linking Etsy reviews & press.** Etsy reviews are portable social proof: fold standout reviews into the homepage press/"as featured in" bar, newsletters, and social highlights alongside editorial placements. Conversely, any press hit or "as seen in" credibility can be referenced in the shop story (within Etsy's policies) so credibility travels with the buyer wherever they land.
+
+---
+
+## 12. The brooch revival
+
+A ready-to-pitch trend hook that sits alongside the six core angles (Section 2) and gives fashion/accessories editors a timely, visual story.
+
+- *Hook:* The brooch is back. Once written off as your grandmother's accessory, the vintage brooch has returned to lapels, collars, bags, and hats via runway and quiet-luxury styling — and Sophia Martin offers **genuine Art Deco brooches**, not "Deco-inspired" lookalikes, each one one-of-a-kind. Founder as the expert on how to buy and wear the real thing.
+- *Ideal outlet:* Fashion/accessories trend desks, quiet-luxury/"old money" style verticals, and the jewelry trade trend desks (ride the same vintage/estate momentum Rapaport flagged). Strong fit for shoppable "how to style it" roundups.
+- *Pitch headline:* *"The Brooch Is Back — Here's How to Wear a Vintage One (5 Ways)."*
+- *Supporting content hook:* the "5 modern ways to wear a vintage brooch" story (lapel, collar, bag, hat, as a pendant) gives editors an instantly usable, visual, shareable format and showcases range beyond pendants.
+
+### A note on rings (bridal & gift-guide angle)
+
+Rings are an under-pitched part of the catalog with a clear press lane: the **vintage/Art Deco engagement-ring alternative.** For the couple who wants something no one else has — and for the "something old" heirloom tradition — a genuine one-of-a-kind Deco ring is a compelling counter to the mass-market solitaire.
+- *Ideal outlet:* Bridal/weddings press (Brides, Martha Stewart Weddings, Green Wedding Shoes, Over The Moon — see Section 3E) and anniversary/gift guides.
+- *Pitch headline:* *"Skip the Mass-Market Solitaire: Why Couples Are Choosing One-of-a-Kind Art Deco Rings."*
+- Pair with the heirloom/anniversary gifting narrative (Angles 4 and 5) and fold ring pieces into the seasonal calendar's wedding-season and anniversary windows.
+
+---
+
 ### Appendix — standing reminders
 - Lead with **story and scarcity**, never price or promotion.
 - Protect the luxury, warm, heritage voice in **every** external word.

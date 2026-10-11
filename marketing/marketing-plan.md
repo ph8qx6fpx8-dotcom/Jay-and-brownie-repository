@@ -231,4 +231,68 @@ Weekly totals: IG ~5–6 posts + daily Stories · Pinterest ~8–10 Pins · TikT
 
 ---
 
+## 10. Etsy as a channel
+
+Etsy is not a detour from the luxury positioning — for a one-of-a-kind vintage/Art Deco brand it is one of the few marketplaces whose *buyer intent already matches the product*. People arrive on Etsy searching for "vintage," "Art Deco," "estate," "one of a kind," and "handmade" — exactly the words we'd want to rank for. We already run the shop **SophiaMartinJewelry** there; the job is to treat it as a true second storefront with its own discovery engine, not a dumping ground for overflow listings.
+
+### Why Etsy fits this brand
+- **Built-in demand for the aesthetic.** Etsy's core shoppers actively hunt vintage, antique, handmade, and one-of-a-kind. We're not teaching them to want "Art Deco jewelry" — they typed it into the search bar. That is warm, self-qualified traffic the Shopify site has to earn through ads, SEO, and social.
+- **Scarcity reads as native, not gimmicky.** A single-quantity listing is normal and expected on Etsy; "only 1 available" is simply true here, and it fits the "when it's gone, it's gone" ethos without feeling like fake urgency.
+- **Discovery for a boutique brand.** Etsy's own search and recommendation surfaces, plus editor curations and gift guides, give a small brand reach it would otherwise pay for.
+
+### Etsy SEO (how pieces get found)
+- **Keyword-rich titles** that front-load buyer language: lead with the specific, searched phrase, then the material and era — e.g. *"Art Deco Onyx & Ruby Fringe Pendant · One of a Kind Vintage Estate Fine Jewelry · 1920s Jazz Age Heirloom."* Avoid burying the key term behind brand-speak.
+- **All 13 tags, every listing** — never leave tags unused. Draw from a rotating bank of high-intent, on-brand phrases: `Art Deco`, `vintage`, `one of a kind`, `heirloom`, `estate`, `Jazz Age`, `antique jewelry`, `Deco revival`, `statement pendant`, `fine jewelry`, `1920s jewelry`, `old Hollywood`, `anniversary gift`. Use multi-word long-tail tags (Etsy rewards phrase matches) and match tags to the exact title keywords.
+- **Category, attributes, and materials** filled out completely (metal, stone, era, occasion) — these power Etsy's filtered search.
+- **Keyword-rich description first lines** since the opening sentences carry SEO weight; keep the elegant brand voice, but make sure the era/material/one-of-a-kind language is present.
+
+### Listing photography & video
+- Use the **full 10 image slots**: hero on clean background, macro of the stones/facets, on-model (neck/wrist/lapel) for scale, era/detail close-ups, and a packaging/brown-bow shot for the heirloom feel.
+- Add a **short listing video** (slow pan, stones catching light) — videos lift conversion and dwell time and repurpose directly from the Reels/Pinterest asset library (Section 8).
+- Keep the blush/brown/cream brand world consistent with Instagram and Pinterest so a shopper who crosses channels sees one brand.
+
+### Reviews as social proof
+- Etsy reviews are **portable trust**. Screenshot and repurpose standout reviews (with the buyer's permission where a name/photo shows) as Instagram Stories, carousel slides, and #WornBySophiaMartin content — closing the trust gap on buying fine jewelry online (Persona A's core objection).
+- A post-purchase note (in packaging + follow-up message) invites the review *and* the #WornBySophiaMartin tag, so one buyer feeds both the Etsy ranking and the organic social proof engine.
+
+### Cross-promotion between Etsy and the Shopify site
+- Both storefronts point to the same brand world: the Etsy "About" section tells the Martin father-daughter story and links allowed destinations per Etsy's policies; the Shopify site and email can mention "also found on Etsy" for buyers who prefer that checkout and buyer protection.
+- Repurpose assets both ways — the SKU asset library (close-ups, on-model, era context, video) cuts into an Etsy listing, a Pin, a Reel, and a product page alike.
+- The **First-Look email list** remains the owned-audience hub; it can route subscribers to whichever storefront a given piece lives on.
+
+### Which channel to push traffic to
+Decide per-objective, not by habit:
+- **Push to the Shopify site** when the goal is brand equity, higher-AOV statement pieces ($2,000–$3,500), full storytelling, concierge DMs, email capture, and keeping the full margin — i.e. most founder-led social and PR traffic.
+- **Lean on Etsy** for *discovery-stage* buyers searching vintage/Deco terms, entry-price pieces (the $300 Crystal & Green Glass Pendant) where Etsy's buyer protection lowers first-purchase hesitation, and to capture demand we aren't yet paying to reach.
+- **Rule of thumb:** warm/branded traffic → site; cold, search-intent "vintage Art Deco" discovery → let Etsy's engine work, then recapture those buyers into the email list to bring them into the brand world. Weigh Etsy's fees against the lower acquisition cost of its built-in intent when the numbers mature.
+
+---
+
+## 11. Merchandising the full range (necklaces, pendants, rings, brooches)
+
+The content pillars (Section 5) lean pendant-heavy because pendants are the hero format — but the catalog spans **necklaces, pendants, rings, and brooches**, and rings and brooches are under-told stories with strong save/share mechanics. Give each category its own content angles so the feed shows range, not repetition.
+
+### Rings — post & pillar ideas
+- **Stacking vintage rings:** carousel/Reel on building a curated stack of one-of-a-kind Art Deco and estate bands — "how to mix eras without it looking busy." Highly saveable styling content.
+- **Cocktail / statement rings:** macro Reel of a bold Deco cocktail ring catching light; "the ring that does all the talking." Ties to the close-up craftsmanship pillar.
+- **The Art Deco engagement-ring alternative:** carousel/Reel for the bride (and self-purchaser) who wants something *no one else has* — a genuine vintage/Deco ring instead of a mass-market solitaire. Lead with the one-of-a-kind truth; pair with the heirloom/"something old" narrative. Strong Pinterest fit ("vintage engagement ring," "Art Deco ring").
+- **Styling CTAs:** "Save this stack." · "Which era would you wear on your hand?"
+
+### Brooches — the revival, and 5 ways to wear one
+Brooches are genuinely on-trend again, visually distinctive, and highly **shareable/saveable** — a perfect fit for the saves-first engagement goal and for reaching new audiences who haven't seen the brand yet.
+- **The brooch revival trend:** a carousel/Reel explaining *why the brooch is back* (runway and quiet-luxury styling, the vintage/Deco moment) and positioning Sophia Martin's genuine Deco brooches as the real thing, not "Deco-inspired."
+- **"5 modern ways to wear a vintage brooch"** — the signature saveable carousel/Reel:
+  1. **On a lapel** (blazer/coat — the classic, elevated).
+  2. **At the collar** (shirt or dress neckline).
+  3. **On a bag** (strap or flap — a fresh, unexpected styling).
+  4. **On a hat** (beret/fedora — old-Hollywood flourish).
+  5. **As a pendant** (worn on a chain — doubling the piece's versatility and linking directly to the pendant hero format).
+- **Why it works for us:** brooch styling is exactly the kind of "I didn't know you could do that" content that earns saves and shares, pulls in a design-led discovery audience (Persona C), and showcases range beyond pendants.
+- **Styling CTAs:** "Save these 5 brooch looks." · "Send this to someone who inherited a brooch and doesn't know how to wear it."
+
+### Weaving it into the weekly framework
+Rotate a **rings** slot and a **brooches** slot into the styling and education pillars so a typical month covers all four categories — e.g. one "ring stack" Reel and one "5 ways to wear a brooch" carousel per month, repurposed into Pinterest Pins (boards: *Vintage & Art Deco Rings*, *The Brooch, Reimagined*) and TikTok. This also widens Pinterest SEO coverage into ring and brooch search terms the brand currently under-indexes.
+
+---
+
 *Plan reflects real inventory and pricing: Art Deco Crystal & Green Glass Pendant ($300), Diamond & Blue Topaz Teardrop Pendant ($1,000), Art Deco Onyx & Ruby Fringe Pendant ($1,500), 18K White Gold Diamond & Topaz Pendant ($2,000), Art Deco Revival Pearl & Multi-Gemstone Fringe Pendant ($2,000), Diamond Starburst Lariat ($3,500).*

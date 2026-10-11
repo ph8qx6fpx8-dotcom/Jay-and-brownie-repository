@@ -64,6 +64,10 @@
   .error { color: #b45309; padding: 8px 12px; background: #fef3c7; border-radius: 6px; }
   .ok { color: var(--good); }
   small.hint { color: var(--muted); }
+  .pos { color: var(--good); }
+  .neg { color: #b91c1c; }
+  .stat .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  td.error-cell { color: var(--warn); font-style: italic; }
 </style>
 </head>
 <body>
@@ -168,6 +172,46 @@
       <li>The 10-year projection extrapolates the artist's in-sample trend plus your market-drift slider; confidence widens with horizon.</li>
       <li>Categorical levels not seen in training (a brand-new auction house, etc.) fall back to a baseline.</li>
       <li>Prices should be hammer + buyer's premium in USD. If your CSV uses hammer-only, gross it up first.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="card hidden" id="portfolio-section">
+  <h2>5. Your portfolio</h2>
+  <p style="margin: 0 0 12px;"><small class="hint">Upload the works you own. Each one is valued as if it sold at auction on the valuation date, using that artist's sales history from step 1. House and location default to where that artist sells most often.</small></p>
+  <div class="row data-actions">
+    <button id="load-sample-portfolio">Use sample portfolio</button>
+    <span>or</span>
+    <input type="file" id="portfolio-input" accept=".csv,text/csv">
+    <small class="hint">Columns: artist, medium, height_cm, width_cm, year_created (+ optional title, depth_cm, acquired_price_usd, acquired_date, provenance_score, exhibited, published, condition, signed, series)</small>
+  </div>
+  <div id="portfolio-status" class="row" style="margin-top: 8px;"></div>
+  <div class="grid" style="margin-top: 12px;">
+    <label class="field"><span>Sale scenario</span>
+      <select id="pf-sale-type">
+        <option value="evening">evening sale</option>
+        <option value="day" selected>day sale</option>
+        <option value="online">online sale</option>
+        <option value="regional">regional house</option>
+      </select>
+    </label>
+    <label class="field"><span>Valuation date</span><input id="pf-date" type="date"></label>
+    <label class="field"><span>Horizon (years)</span><input id="pf-horizon" type="number" min="1" max="20" value="10"></label>
+    <label class="field"><span>Market drift (% / yr)</span><input id="pf-drift" type="number" min="-5" max="10" step="0.5" value="0"></label>
+  </div>
+  <div class="row" style="margin-top: 12px;">
+    <button id="pf-value" class="primary" disabled>Value portfolio</button>
+    <button id="pf-download" class="hidden">Download results CSV</button>
+  </div>
+  <div class="summary hidden" id="pf-totals" style="margin-top: 16px;"></div>
+  <div style="overflow-x: auto; margin-top: 16px;"><table id="pf-table"></table></div>
+  <details class="hidden" id="pf-caveats">
+    <summary>How to read this</summary>
+    <ul>
+      <li>"Value now" is what the model expects the work to fetch at auction on the valuation date under the chosen scenario — not a guaranteed sale price.</li>
+      <li>The portfolio range sums each work's low and high bounds. That is a conservative envelope: it assumes every work lands at its low (or high) at once.</li>
+      <li>Gains compare "value now" to <code>acquired_price_usd</code> and ignore buyer's/seller's premiums, taxes, and holding costs.</li>
+      <li>Works by artists with fewer than 6 sales in the loaded data are listed but not valued.</li>
     </ul>
   </details>
 </section>
@@ -364,7 +408,7 @@ function validate(rawRows) {
     const price = toNum(r.sale_price_usd, 0);
     const h = toNum(r.height_cm, 0);
     const w = toNum(r.width_cm, 0);
-    const date = new Date(r.sale_date);
+    const date = parseDate(r.sale_date);
     if (price <= 0 || h <= 0 || w <= 0 || isNaN(date.getTime())) continue;
     out.push({
       artist: String(r.artist).trim(),
@@ -424,10 +468,21 @@ function careerPeriod(year, bins) {
   if (year <= bins[3]) return 'peak';
   return 'late';
 }
+// Dates are treated as calendar dates (no timezone), matching the Python side.
+function parseDate(v) {
+  if (v instanceof Date) return v;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v).trim());
+  if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return new Date(v);
+}
+function localISO(d) {
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
 function saleYearFrac(date) {
-  const start = new Date(date.getFullYear(), 0, 1);
-  const dayOfYear = (date - start) / 86400000;
-  return date.getFullYear() + dayOfYear / 365.25;
+  const y = date.getFullYear();
+  const dayOfYear = (Date.UTC(y, date.getMonth(), date.getDate()) - Date.UTC(y, 0, 1)) / 86400000;
+  return y + dayOfYear / 365.25;
 }
 function baseRow(r, careerBins) {
   return {
@@ -573,7 +628,7 @@ function fitHedonic(rows, artist, alpha = 1.0) {
   return { artist, beta, intercept, spec, sigma, rSquared, annualTrend, historicalSpan: Math.max(span, 1), training: sub };
 }
 function lotToRow(lot, artist) {
-  const date = lot.sale_date instanceof Date ? lot.sale_date : new Date(lot.sale_date);
+  const date = parseDate(lot.sale_date);
   return {
     artist, title: '',
     medium: normalizeMedium(lot.medium),
@@ -608,7 +663,7 @@ function predict(model, lot) {
   };
 }
 function project(model, lot, years, drift) {
-  const baseDate = lot.sale_date instanceof Date ? lot.sale_date : new Date(lot.sale_date);
+  const baseDate = parseDate(lot.sale_date);
   const out = [];
   for (let h = 0; h <= years; h++) {
     const fdate = new Date(baseDate); fdate.setFullYear(baseDate.getFullYear() + h);
@@ -650,7 +705,8 @@ function comparables(model, lot, k = 5) {
 let DATA = null;
 let MODEL = null;
 const fmt = n => '$' + Math.round(n).toLocaleString('en-US');
-const fmtDate = d => d instanceof Date ? d.toISOString().slice(0, 10) : String(d);
+const fmtDate = d => d instanceof Date ? localISO(d) : String(d);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 function showStatus(node, message, ok = true) {
   node.innerHTML = `<span class="${ok ? 'ok' : 'error'}">${message}</span>`;
@@ -667,6 +723,8 @@ function loadData(text) {
     `Loaded ${DATA.length} rows across ${new Set(DATA.map(r => r.artist)).size} artists.`);
   populateArtistPicker();
   document.getElementById('artist-section').classList.remove('hidden');
+  document.getElementById('portfolio-section').classList.remove('hidden');
+  if (PORTFOLIO) runPortfolioValuation();
 }
 
 function populateArtistPicker() {
@@ -735,8 +793,7 @@ function populateFormDropdowns(sub) {
   fillSelect('location', Array.from(new Set(sub.map(r => r.location))).filter(Boolean).sort(), 'new york');
   fillSelect('series', Array.from(new Set(sub.map(r => r.series))).sort(), '');
   // default the auction date to today
-  const todayISO = new Date().toISOString().slice(0, 10);
-  document.querySelector('#lot-form input[name="sale_date"]').value = todayISO;
+  document.querySelector('#lot-form input[name="sale_date"]').value = localISO(new Date());
 }
 
 function readLotForm() {
@@ -809,6 +866,262 @@ function renderResults(lot) {
   document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// ---------------------------------------------------------------------------
+// Portfolio valuation
+// ---------------------------------------------------------------------------
+const SAMPLE_PORTFOLIO_CSV = `artist,title,medium,height_cm,width_cm,depth_cm,year_created,acquired_price_usd,acquired_date,provenance_score,exhibited,published,condition,signed,series
+Ada Quill,Harbor Study,oil,150,120,0,2012,95000,2020-06-15,1,False,False,4,True,
+Ada Quill,Blue Interior,acrylic,180,90,0,2019,140000,2022-03-01,2,True,False,5,True,blue period
+Bo Marquez,Figure VII,sculpture,110,80,70,2016,310000,2021-11-20,1,False,True,4,True,
+Bo Marquez,Night Field,oil,200,240,0,2008,520000,2019-05-10,0,False,False,4,True,
+Chen Lin,Mountain Pass,oil,140,200,0,1986,2800000,2018-10-05,2,True,True,4,True,
+Chen Lin,Study in Ink,works_on_paper,70,50,0,1995,,,1,False,False,5,True,
+Unknown Painter,Mystery Canvas,oil,100,100,0,2000,15000,2023-01-01,0,False,False,4,True,
+`;
+const PF_REQUIRED = ['artist', 'medium', 'height_cm', 'width_cm', 'year_created'];
+const PF_MIN_SALES = 6;
+const PF_CSV_COLUMNS = [
+  'artist', 'title', 'medium', 'height_cm', 'width_cm', 'year_created',
+  'acquired_price_usd', 'acquired_date', 'status', 'n_sales',
+  'scenario_house', 'scenario_location', 'scenario_sale_type', 'valuation_date',
+  'now_point_usd', 'now_low_usd', 'now_high_usd',
+  'horizon_year', 'horizon_point_usd', 'horizon_low_usd', 'horizon_high_usd',
+  'gain_usd', 'gain_pct',
+];
+let PORTFOLIO = null;
+let PF_RESULTS = null;
+let PF_OPTS = null;
+
+function validatePortfolio(rawRows) {
+  if (!rawRows.length) throw new Error('Portfolio CSV is empty.');
+  const missing = PF_REQUIRED.filter(c => !(c in rawRows[0]));
+  if (missing.length) throw new Error('Portfolio is missing required columns: ' + missing.join(', '));
+  return rawRows.map((r, i) => {
+    const h = toNum(r.height_cm, 0), w = toNum(r.width_cm, 0);
+    if (h <= 0 || w <= 0) throw new Error(`Portfolio row ${i + 2}: missing or zero height/width.`);
+    return {
+      artist: String(r.artist).trim(),
+      title: r.title || '',
+      medium: normalizeMedium(r.medium),
+      height_cm: h, width_cm: w,
+      depth_cm: toNum(r.depth_cm, 0),
+      year_created: Math.trunc(toNum(r.year_created, 0)),
+      acquired_price_usd: toNum(r.acquired_price_usd, 0),
+      acquired_date: r.acquired_date || '',
+      provenance_score: Math.max(0, Math.min(3, Math.trunc(toNum(r.provenance_score, 0)))),
+      exhibited: toBool(r.exhibited),
+      published: toBool(r.published),
+      condition: Math.max(1, Math.min(5, Math.trunc(toNum(r.condition, 4)))),
+      signed: toBool(r.signed),
+      series: r.series || '',
+    };
+  });
+}
+
+// Most common value; ties broken alphabetically (matches pandas mode()[0]).
+function modeFirst(values, fallback) {
+  const counts = new Map();
+  for (const v of values) {
+    const s = String(v ?? '').trim();
+    if (!s) continue;
+    counts.set(s, (counts.get(s) || 0) + 1);
+  }
+  if (!counts.size) return fallback;
+  let best = null, bestN = -1;
+  for (const [s, n] of counts) {
+    if (n > bestN || (n === bestN && s < best)) { best = s; bestN = n; }
+  }
+  return best;
+}
+
+function artistScenario(salesRows, artist) {
+  const sub = salesRows.filter(r => r.artist === artist);
+  return {
+    auction_house: modeFirst(sub.map(r => r.auction_house), "Christie's"),
+    location: modeFirst(sub.map(r => r.location), 'other'),
+  };
+}
+
+function valuePortfolio(salesRows, works, opts) {
+  const counts = new Map();
+  for (const r of salesRows) counts.set(r.artist, (counts.get(r.artist) || 0) + 1);
+  const models = new Map();
+  const modelFor = artist => {
+    if (models.has(artist)) return models.get(artist);
+    const n = counts.get(artist) || 0;
+    let m;
+    if (n === 0) m = 'no sales data for this artist';
+    else if (n < PF_MIN_SALES) m = `only ${n} sales; need at least ${PF_MIN_SALES}`;
+    else m = fitHedonic(salesRows, artist, opts.alpha);
+    models.set(artist, m);
+    return m;
+  };
+  return works.map(w => {
+    const base = {
+      artist: w.artist, title: w.title, medium: w.medium,
+      height_cm: w.height_cm, width_cm: w.width_cm, year_created: w.year_created,
+      acquired_price_usd: w.acquired_price_usd, acquired_date: w.acquired_date,
+      n_sales: counts.get(w.artist) || 0,
+    };
+    const m = modelFor(w.artist);
+    if (typeof m === 'string') return { ...base, status: m };
+    const sc = artistScenario(salesRows, w.artist);
+    const lot = {
+      medium: w.medium, height_cm: w.height_cm, width_cm: w.width_cm, depth_cm: w.depth_cm,
+      year_created: w.year_created, sale_date: opts.valuationDate,
+      auction_house: sc.auction_house, sale_type: opts.saleType, location: sc.location,
+      provenance_score: w.provenance_score, exhibited: w.exhibited, published: w.published,
+      condition: w.condition, signed: w.signed, series: w.series,
+    };
+    const now = predict(m, lot);
+    const proj = project(m, lot, opts.horizon, opts.drift);
+    const last = proj[proj.length - 1];
+    const acquired = w.acquired_price_usd > 0 ? w.acquired_price_usd : 0;
+    const gain = acquired > 0 ? now.point - acquired : NaN;
+    return {
+      ...base,
+      status: 'ok',
+      n_sales: m.training.length,
+      scenario_house: sc.auction_house,
+      scenario_location: sc.location,
+      scenario_sale_type: opts.saleType,
+      valuation_date: localISO(opts.valuationDate),
+      now_point_usd: now.point, now_low_usd: now.low, now_high_usd: now.high,
+      horizon_year: last.year,
+      horizon_point_usd: last.point, horizon_low_usd: last.low, horizon_high_usd: last.high,
+      gain_usd: gain,
+      gain_pct: acquired > 0 ? gain / acquired * 100 : NaN,
+    };
+  });
+}
+
+function portfolioTotals(results) {
+  const ok = results.filter(r => r.status === 'ok');
+  const sum = (rows, k) => rows.reduce((s, r) => s + r[k], 0);
+  const costed = ok.filter(r => r.acquired_price_usd > 0);
+  const cost = sum(costed, 'acquired_price_usd');
+  const nowOnCost = sum(costed, 'now_point_usd');
+  return {
+    n_works: results.length,
+    n_valued: ok.length,
+    n_skipped: results.length - ok.length,
+    now_point_usd: sum(ok, 'now_point_usd'),
+    now_low_usd: sum(ok, 'now_low_usd'),
+    now_high_usd: sum(ok, 'now_high_usd'),
+    horizon_point_usd: sum(ok, 'horizon_point_usd'),
+    horizon_low_usd: sum(ok, 'horizon_low_usd'),
+    horizon_high_usd: sum(ok, 'horizon_high_usd'),
+    acquired_total_usd: cost,
+    gain_usd: cost > 0 ? nowOnCost - cost : NaN,
+    gain_pct: cost > 0 ? (nowOnCost - cost) / cost * 100 : NaN,
+  };
+}
+
+function readPortfolioOpts() {
+  const dateStr = document.getElementById('pf-date').value || localISO(new Date());
+  return {
+    saleType: normalizeSaleType(document.getElementById('pf-sale-type').value),
+    valuationDate: parseDate(dateStr),
+    horizon: Math.max(1, Math.trunc(Number(document.getElementById('pf-horizon').value) || 10)),
+    drift: (Number(document.getElementById('pf-drift').value) || 0) / 100,
+    alpha: Number(document.getElementById('alpha').value) || 1.0,
+  };
+}
+
+function loadPortfolio(text) {
+  const status = document.getElementById('portfolio-status');
+  try {
+    PORTFOLIO = validatePortfolio(parseCSV(text));
+  } catch (e) {
+    PORTFOLIO = null;
+    showStatus(status, 'Error: ' + e.message, false);
+    return;
+  }
+  const artists = new Set(PORTFOLIO.map(w => w.artist)).size;
+  showStatus(status, `Loaded ${PORTFOLIO.length} works across ${artists} artist${artists === 1 ? '' : 's'}.`);
+  document.getElementById('pf-value').disabled = false;
+  if (DATA) runPortfolioValuation();
+}
+
+function runPortfolioValuation() {
+  const status = document.getElementById('portfolio-status');
+  if (!DATA) { showStatus(status, 'Load sales data in step 1 first.', false); return; }
+  if (!PORTFOLIO) { showStatus(status, 'Upload a portfolio CSV or use the sample.', false); return; }
+  try {
+    PF_OPTS = readPortfolioOpts();
+    PF_RESULTS = valuePortfolio(DATA, PORTFOLIO, PF_OPTS);
+  } catch (e) {
+    showStatus(status, 'Valuation failed: ' + e.message, false);
+    return;
+  }
+  renderPortfolio(PF_RESULTS, PF_OPTS);
+}
+
+function renderPortfolio(results, opts) {
+  const t = portfolioTotals(results);
+  const horizonYear = opts.valuationDate.getFullYear() + opts.horizon;
+  const money = v => Number.isFinite(v) ? fmt(v) : '—';
+  const pct = v => Number.isFinite(v) ? `${v >= 0 ? '+' : ''}${v.toFixed(1)}%` : '—';
+  const cls = v => Number.isFinite(v) ? (v >= 0 ? 'pos' : 'neg') : '';
+
+  const totals = document.getElementById('pf-totals');
+  totals.innerHTML = `
+    <div class="stat headline"><div class="label">Portfolio value now</div><div class="value">${fmt(t.now_point_usd)}</div><div class="sub">range ${fmt(t.now_low_usd)} – ${fmt(t.now_high_usd)}</div></div>
+    <div class="stat"><div class="label">Value in ${horizonYear}</div><div class="value">${fmt(t.horizon_point_usd)}</div><div class="sub">range ${fmt(t.horizon_low_usd)} – ${fmt(t.horizon_high_usd)}</div></div>
+    <div class="stat"><div class="label">Cost basis</div><div class="value">${t.acquired_total_usd > 0 ? fmt(t.acquired_total_usd) : '—'}</div><div class="sub">${t.acquired_total_usd > 0 ? 'works with a purchase price' : 'add acquired_price_usd to see gains'}</div></div>
+    <div class="stat"><div class="label">Unrealized gain</div><div class="value ${cls(t.gain_usd)}">${money(t.gain_usd)}</div><div class="sub">${pct(t.gain_pct)} on cost</div></div>
+    <div class="stat"><div class="label">Works valued</div><div class="value">${t.n_valued} / ${t.n_works}</div><div class="sub">${t.n_skipped ? t.n_skipped + ' skipped — see table' : 'all works valued'}</div></div>`;
+  totals.classList.remove('hidden');
+
+  const head = `<thead><tr>
+    <th>Artist</th><th>Title</th><th>Medium</th><th class="num">H × W (cm)</th><th class="num">Year</th>
+    <th>Scenario</th><th class="num">Value now</th><th class="num">80% range</th><th class="num">Value ${horizonYear}</th>
+    <th class="num">Cost</th><th class="num">Gain</th><th class="num">Sales used</th></tr></thead>`;
+  const body = results.map(r => {
+    const lead = `<td>${esc(r.artist)}</td><td>${esc(r.title)}</td><td>${r.medium}</td>
+      <td class="num">${r.height_cm} × ${r.width_cm}</td><td class="num">${r.year_created || ''}</td>`;
+    if (r.status !== 'ok') {
+      return `<tr>${lead}<td colspan="7" class="error-cell">${esc(r.status)}</td></tr>`;
+    }
+    return `<tr>${lead}
+      <td>${esc(r.scenario_house)} · ${esc(r.scenario_location)} · ${r.scenario_sale_type}</td>
+      <td class="num"><strong>${fmt(r.now_point_usd)}</strong></td>
+      <td class="num">${fmt(r.now_low_usd)} – ${fmt(r.now_high_usd)}</td>
+      <td class="num">${fmt(r.horizon_point_usd)}</td>
+      <td class="num">${r.acquired_price_usd > 0 ? fmt(r.acquired_price_usd) : '—'}</td>
+      <td class="num ${cls(r.gain_usd)}">${money(r.gain_usd)}${Number.isFinite(r.gain_pct) ? ` (${pct(r.gain_pct)})` : ''}</td>
+      <td class="num">${r.n_sales}</td></tr>`;
+  }).join('');
+  document.getElementById('pf-table').innerHTML = head + '<tbody>' + body + '</tbody>';
+  document.getElementById('pf-download').classList.remove('hidden');
+  document.getElementById('pf-caveats').classList.remove('hidden');
+}
+
+function csvEscape(v) {
+  if (v == null || (typeof v === 'number' && !Number.isFinite(v))) return '';
+  const s = String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function portfolioResultsCSV(results) {
+  const lines = [PF_CSV_COLUMNS.join(',')];
+  for (const r of results) lines.push(PF_CSV_COLUMNS.map(c => csvEscape(r[c])).join(','));
+  return lines.join('\n') + '\n';
+}
+
+function downloadPortfolioCSV() {
+  if (!PF_RESULTS) return;
+  const blob = new Blob([portfolioResultsCSV(PF_RESULTS)], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `portfolio_valuation_${PF_OPTS ? localISO(PF_OPTS.valuationDate) : localISO(new Date())}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 // Wire up events
 document.getElementById('load-sample').addEventListener('click', () => loadData(SAMPLE_CSV));
 document.getElementById('csv-input').addEventListener('change', e => {
@@ -825,6 +1138,20 @@ document.getElementById('lot-form').addEventListener('submit', e => {
   try { renderResults(readLotForm()); }
   catch (err) { showStatus(document.getElementById('data-status'), 'Prediction failed: ' + err.message, false); }
 });
+
+document.getElementById('pf-date').value = localISO(new Date());
+document.getElementById('load-sample-portfolio').addEventListener('click', () => loadPortfolio(SAMPLE_PORTFOLIO_CSV));
+document.getElementById('portfolio-input').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => loadPortfolio(String(reader.result));
+  reader.readAsText(file);
+});
+document.getElementById('pf-value').addEventListener('click', runPortfolioValuation);
+document.getElementById('pf-download').addEventListener('click', downloadPortfolioCSV);
+for (const id of ['pf-sale-type', 'pf-date', 'pf-horizon', 'pf-drift']) {
+  document.getElementById(id).addEventListener('change', () => { if (PORTFOLIO && DATA) runPortfolioValuation(); });
+}
 </script>
 </body>
 </html>

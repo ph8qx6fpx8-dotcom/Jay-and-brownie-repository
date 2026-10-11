@@ -1,0 +1,8 @@
+artist,title,medium,height_cm,width_cm,depth_cm,year_created,acquired_price_usd,acquired_date,provenance_score,exhibited,published,condition,signed,series
+Ada Quill,Harbor Study,oil,150,120,0,2012,95000,2020-06-15,1,False,False,4,True,
+Ada Quill,Blue Interior,acrylic,180,90,0,2019,140000,2022-03-01,2,True,False,5,True,blue period
+Bo Marquez,Figure VII,sculpture,110,80,70,2016,310000,2021-11-20,1,False,True,4,True,
+Bo Marquez,Night Field,oil,200,240,0,2008,520000,2019-05-10,0,False,False,4,True,
+Chen Lin,Mountain Pass,oil,140,200,0,1986,2800000,2018-10-05,2,True,True,4,True,
+Chen Lin,Study in Ink,works_on_paper,70,50,0,1995,,,1,False,False,5,True,
+Unknown Painter,Mystery Canvas,oil,100,100,0,2000,15000,2023-01-01,0,False,False,4,True,

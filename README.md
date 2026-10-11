@@ -125,6 +125,28 @@ python -m predictor.scrapers.christies --artist "Gerhard Richter" --pages 5 \
 Scraping christies.com is against their TOS — keep volume low, use it for
 personal research only, and don't redistribute the data.
 
+### LiveArt AI
+
+```python
+from predictor.data_sources import LiveArtClient
+src = LiveArtClient.from_env()                 # reads LIVEART_API_KEY
+df = src.fetch("René Portocarrero")
+```
+
+Or produce a CSV in one command (useful when you want to feed the
+standalone `index.html` with real auction data without running the
+Streamlit app):
+
+```bash
+export LIVEART_API_KEY=your_key
+python -m predictor.fetch_liveart --artist "René Portocarrero" --out data/portocarrero.csv
+
+# Rerun with new artists — rows get appended + deduped automatically
+python -m predictor.fetch_liveart --artist "Wifredo Lam" --out data/portocarrero.csv
+```
+
+Then upload that CSV in `index.html` or point the Streamlit app at it.
+
 ### Apify actor
 
 ```python

@@ -146,6 +146,7 @@ def validate(df: pd.DataFrame) -> pd.DataFrame:
     out[AUCTION_HOUSE] = out[AUCTION_HOUSE].astype(str).str.strip()
     out[LOCATION] = out[LOCATION].astype(str).str.strip().str.lower().replace("", "other")
     out[SERIES] = out[SERIES].astype(str).fillna("")
+    out[LOT_NUMBER] = out[LOT_NUMBER].astype(str).str.strip()
 
     for col in [HEIGHT_CM, WIDTH_CM, DEPTH_CM, SALE_PRICE_USD]:
         out[col] = pd.to_numeric(out[col], errors="coerce")

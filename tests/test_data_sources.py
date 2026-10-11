@@ -7,6 +7,7 @@ from predictor import schema as S
 from predictor.data_sources import (
     ArtnetClient,
     CsvSource,
+    LiveArtClient,
     MergedSource,
     MutualArtClient,
     _parse_dimensions,
@@ -101,6 +102,52 @@ def test_mutualart_client_maps_response_and_dimensions_string():
     assert row[S.MEDIUM] == "oil"
     assert row[S.SALE_TYPE] == "evening"
     assert row[S.LOCATION] == "london"
+
+
+def test_liveart_client_two_step_fetch():
+    """Resolves artist by name, then fetches sales using its ID."""
+    client = LiveArtClient(api_key="x", base_url="https://example.test")
+
+    responses = {}
+    def fake_get(path, params):
+        if path == "artists":
+            return {"artists": [{"id": "a_42", "name": "René Portocarrero"}]}
+        if path == "sales":
+            responses.setdefault("sales_params", params)
+            return {"sales": [
+                {
+                    "artist_name": "René Portocarrero",
+                    "title": "Figuras",
+                    "category": "oil",
+                    "height_cm": 100, "width_cm": 80,
+                    "created_year": 1965,
+                    "sold_at": "2024-06-10",
+                    "price_usd": 85000,
+                    "auction_house_name": "Christie's",
+                    "sale_type": "Evening Sale",
+                    "city": "New York",
+                    "lot_number": 42,
+                }
+            ]}
+        return {}
+
+    with patch.object(LiveArtClient, "_get", side_effect=fake_get):
+        df = client.fetch("René Portocarrero")
+
+    assert len(df) == 1
+    row = df.iloc[0]
+    assert row[S.MEDIUM] == "oil"
+    assert row[S.SALE_PRICE_USD] == 85000
+    assert row[S.SALE_TYPE] == "evening"
+    assert row[S.AUCTION_HOUSE] == "Christie's"
+    assert responses["sales_params"]["artist_id"] == "a_42"
+
+
+def test_liveart_client_returns_empty_when_artist_not_found():
+    client = LiveArtClient(api_key="x", base_url="https://example.test")
+    with patch.object(LiveArtClient, "_get", return_value={"artists": []}):
+        df = client.fetch("Nobody Here")
+    assert df.empty
 
 
 def test_merged_source_dedupes_overlapping_rows():

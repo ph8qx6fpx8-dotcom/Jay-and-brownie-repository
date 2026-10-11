@@ -15,6 +15,7 @@ from predictor import schema as S
 from predictor.data_sources import (
     ArtnetClient,
     CsvSource,
+    LiveArtClient,
     MergedSource,
     MutualArtClient,
 )
@@ -62,6 +63,7 @@ def _load_csv_dataframe(uploaded_file, use_sample: bool) -> pd.DataFrame | None:
 def _api_dataframe(
     use_artnet: bool,
     use_mutualart: bool,
+    use_liveart: bool,
     use_christies: bool,
     christies_pages: int,
     use_apify: bool,
@@ -74,6 +76,8 @@ def _api_dataframe(
         sources.append(ArtnetClient.from_env())
     if use_mutualart:
         sources.append(MutualArtClient.from_env())
+    if use_liveart:
+        sources.append(LiveArtClient.from_env())
     if use_christies:
         sources.append(ChristiesSource(pages=christies_pages))
     if use_apify:
@@ -91,6 +95,9 @@ with st.sidebar:
     use_artnet = st.checkbox("Artnet API", value=False, help="Reads ARTNET_API_KEY/ARTNET_BASE_URL")
     use_mutualart = st.checkbox(
         "MutualArt API", value=False, help="Reads MUTUALART_API_KEY/MUTUALART_BASE_URL"
+    )
+    use_liveart = st.checkbox(
+        "LiveArt API", value=False, help="Reads LIVEART_API_KEY (base URL optional)"
     )
     use_christies = st.checkbox(
         "Christie's scraper",
@@ -140,12 +147,13 @@ try:
 except Exception as e:
     errors.append(f"CSV load error: {e}")
 
-if (use_artnet or use_mutualart or use_christies or use_apify) and api_artist:
+if (use_artnet or use_mutualart or use_liveart or use_christies or use_apify) and api_artist:
     try:
         with st.spinner(f"Fetching auction data for {api_artist}..."):
             api_df = _api_dataframe(
                 use_artnet,
                 use_mutualart,
+                use_liveart,
                 use_christies,
                 christies_pages,
                 use_apify,

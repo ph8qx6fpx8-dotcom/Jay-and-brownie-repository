@@ -231,6 +231,102 @@ class MutualArtClient(_HttpClient):
         }
 
 
+class LiveArtClient(_HttpClient):
+    """Adapter for LiveArt AI's auction-results API (api.liveart.ai).
+
+    Two-step fetch: look up the artist's ID via /v1/artists?q=<name>, then
+    pull their sales via /v1/sales?artist_id=<id>&limit=... with pagination.
+    Field names below follow LiveArt's documented sale object; if your plan's
+    response shape differs, edit `_map_lot` to match.
+    """
+
+    name = "liveart"
+
+    def __init__(self, api_key: str, base_url: str = "https://api.liveart.ai/v1",
+                 timeout: float = 30.0):
+        self.api_key = api_key
+        self.base_url = base_url
+        self.timeout = timeout
+
+    @classmethod
+    def from_env(cls) -> "LiveArtClient":
+        key = os.environ.get("LIVEART_API_KEY")
+        if not key:
+            raise RuntimeError("Set LIVEART_API_KEY in environment")
+        url = os.environ.get("LIVEART_BASE_URL", "https://api.liveart.ai/v1")
+        return cls(api_key=key, base_url=url)
+
+    def _resolve_artist_id(self, artist: str) -> str | None:
+        """Find a LiveArt artist ID by name (best match on first page)."""
+        data = self._get("artists", {"q": artist, "limit": 5})
+        artists = data.get("artists") or data.get("results") or []
+        if not artists:
+            return None
+        target = artist.strip().lower()
+        for a in artists:
+            name = (a.get("name") or "").strip().lower()
+            if name == target:
+                return str(a.get("id") or a.get("artist_id") or "")
+        a = artists[0]
+        return str(a.get("id") or a.get("artist_id") or "") or None
+
+    def fetch(self, artist: str) -> pd.DataFrame:
+        artist_id = self._resolve_artist_id(artist)
+        if not artist_id:
+            return pd.DataFrame(columns=S.ALL_COLUMNS)
+        rows: list[dict] = []
+        offset, limit = 0, 100
+        while True:
+            data = self._get(
+                "sales",
+                {"artist_id": artist_id, "offset": offset, "limit": limit},
+            )
+            lots = data.get("sales") or data.get("results") or data.get("lots") or []
+            if not lots:
+                break
+            rows.extend(self._map_lot(l, artist) for l in lots)
+            if len(lots) < limit:
+                break
+            offset += limit
+        return self._to_dataframe(rows)
+
+    @staticmethod
+    def _map_lot(lot: dict, artist: str) -> dict:
+        h = float(lot.get("height_cm") or lot.get("height") or 0)
+        w = float(lot.get("width_cm") or lot.get("width") or 0)
+        d = float(lot.get("depth_cm") or lot.get("depth") or 0)
+        if not (h and w):
+            h, w, d = _parse_dimensions(lot.get("dimensions") or "")
+        return {
+            S.ARTIST: lot.get("artist_name") or artist,
+            S.TITLE: lot.get("title") or lot.get("artwork_title") or "",
+            S.MEDIUM: S.normalize_medium(
+                lot.get("category") or lot.get("medium") or "other"
+            ),
+            S.HEIGHT_CM: h,
+            S.WIDTH_CM: w,
+            S.DEPTH_CM: d,
+            S.YEAR_CREATED: lot.get("created_year") or lot.get("year_created"),
+            S.SALE_DATE: lot.get("sold_at") or lot.get("sale_date"),
+            S.SALE_PRICE_USD: lot.get("price_usd")
+            or lot.get("hammer_price_usd")
+            or lot.get("final_price_usd")
+            or 0,
+            S.AUCTION_HOUSE: lot.get("auction_house_name") or lot.get("house") or "",
+            S.SALE_TYPE: S.normalize_sale_type(
+                lot.get("sale_type") or lot.get("auction_name") or "day"
+            ),
+            S.LOCATION: (lot.get("city") or lot.get("location") or "other").lower(),
+            S.LOT_NUMBER: str(lot.get("lot_number") or lot.get("lot_id") or ""),
+            S.PROVENANCE_SCORE: int(lot.get("provenance_score") or 0),
+            S.EXHIBITED: bool(lot.get("exhibited")),
+            S.PUBLISHED: bool(lot.get("published")),
+            S.CONDITION: int(lot.get("condition") or 4),
+            S.SIGNED: bool(lot.get("signed")),
+            S.SERIES: lot.get("series") or "",
+        }
+
+
 class MergedSource(AuctionDataSource):
     """Concatenate multiple sources, dedupe overlapping rows."""
 

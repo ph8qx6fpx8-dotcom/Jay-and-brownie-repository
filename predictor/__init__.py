@@ -3,6 +3,7 @@ from predictor.data_sources import (
     AuctionDataSource,
     ArtnetClient,
     MutualArtClient,
+    LiveArtClient,
     CsvSource,
     MergedSource,
 )
@@ -15,6 +16,7 @@ __all__ = [
     "AuctionDataSource",
     "ArtnetClient",
     "MutualArtClient",
+    "LiveArtClient",
     "CsvSource",
     "MergedSource",
     "ChristiesSource",

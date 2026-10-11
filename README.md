@@ -19,7 +19,33 @@ estimated annual price trend; combined with a user-tunable broader market
 drift, that's what drives the projection. Confidence intervals widen with
 horizon (`σ × √(1 + h/T)`).
 
-## Quick start (local)
+## Easiest way to run it: standalone `index.html`
+
+No Python, no terminal, no GitHub, no install. The file `index.html`
+in this repo is a fully self-contained version of the app — UI,
+regression model, chart, and the bundled sample data are all packed
+into that one file.
+
+To use it:
+
+1. Download `index.html` (right-click → Save As, or download the repo
+   as a ZIP from GitHub and pull it out).
+2. Double-click the file. It opens in your default browser like a
+   normal web page.
+3. Click **Use bundled sample** to try it immediately, or upload your
+   own CSV.
+4. Pick an artist, fill the form, click **Estimate price**.
+
+Everything runs in your browser — your data never leaves the page.
+Internet is needed only the first time you open it (for the chart
+library on the CDN). The Ridge-regression math is reimplemented in
+JavaScript and produces identical numbers to the Python version.
+
+The standalone HTML doesn't include the API/scraper integrations
+(those need a Python server). For Apify, MutualArt, etc., use the
+Streamlit version below.
+
+## Streamlit version (Python)
 
 ```bash
 pip install -r requirements.txt
@@ -59,13 +85,14 @@ runs the scrape on its own infrastructure).
 
 ## Data sources
 
-The app supports five sources, configurable from the sidebar:
+The app supports six sources, configurable from the sidebar:
 
 | Source | Status | Setup |
 |---|---|---|
 | **CSV upload** | Always works | Upload a CSV matching the schema in `predictor/schema.py` |
 | **Artnet partner API** | Stub adapter, needs your endpoint | Set `ARTNET_API_KEY` and `ARTNET_BASE_URL` in `.env` |
 | **MutualArt partner API** | Stub adapter, needs your endpoint | Set `MUTUALART_API_KEY` and `MUTUALART_BASE_URL` in `.env` |
+| **LiveArt AI API** | Two-step fetch (artist lookup → sales); verify field names against your plan | Set `LIVEART_API_KEY` in `.env` (base URL optional) |
 | **Christie's scraper** | Skeleton; selectors need verification | Run the CLI once with `--dump-html` to inspect markup, then update SELECTORS at top of `predictor/scrapers/christies.py` |
 | **Apify actor** | Works as-is for any actor returning the right shape | Set `APIFY_API_TOKEN` in `.env`. Default actor is `parseforge/artsy-scraper` (asking prices, NOT auction prices) |
 
@@ -97,6 +124,28 @@ python -m predictor.scrapers.christies --artist "Gerhard Richter" --pages 5 \
 
 Scraping christies.com is against their TOS — keep volume low, use it for
 personal research only, and don't redistribute the data.
+
+### LiveArt AI
+
+```python
+from predictor.data_sources import LiveArtClient
+src = LiveArtClient.from_env()                 # reads LIVEART_API_KEY
+df = src.fetch("René Portocarrero")
+```
+
+Or produce a CSV in one command (useful when you want to feed the
+standalone `index.html` with real auction data without running the
+Streamlit app):
+
+```bash
+export LIVEART_API_KEY=your_key
+python -m predictor.fetch_liveart --artist "René Portocarrero" --out data/portocarrero.csv
+
+# Rerun with new artists — rows get appended + deduped automatically
+python -m predictor.fetch_liveart --artist "Wifredo Lam" --out data/portocarrero.csv
+```
+
+Then upload that CSV in `index.html` or point the Streamlit app at it.
 
 ### Apify actor
 

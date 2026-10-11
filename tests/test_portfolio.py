@@ -8,6 +8,9 @@ from predictor import schema as S
 from predictor.data_sources import CsvSource
 from predictor.portfolio import (
     ACQUIRED_PRICE_USD,
+    EST_HIGH,
+    EST_LOW,
+    EST_MID,
     artist_scenario,
     main,
     portfolio_totals,
@@ -35,10 +38,43 @@ def test_validate_portfolio_requires_columns():
         validate_portfolio(pd.DataFrame({"artist": ["X"], "medium": ["oil"]}))
 
 
-def test_validate_portfolio_rejects_zero_dimensions():
-    df = pd.DataFrame([{"artist": "X", "medium": "oil", "height_cm": 0, "width_cm": 50, "year_created": 2000}])
-    with pytest.raises(S.SchemaError):
-        validate_portfolio(df)
+def test_rows_with_missing_dimensions_or_year_are_listed_not_valued(sales_df):
+    pf = pd.DataFrame([
+        {"artist": "Ada Quill", "medium": "oil", "height_cm": 0, "width_cm": 50, "year_created": 2000,
+         "acquired_price_usd": 1000, "est_value_mid_usd": 1500},
+        {"artist": "Ada Quill", "medium": "oil", "height_cm": 100, "width_cm": 50, "year_created": 0},
+        {"artist": "Ada Quill", "medium": "oil", "height_cm": 100, "width_cm": 50, "year_created": 2000},
+    ])
+    res = value_portfolio(sales_df, pf, valuation_date=VALUATION_DATE)
+    assert list(res["status"]) == ["missing dimensions", "missing year_created", "ok"]
+    # The owner's estimate and its gain are still reported for unvalued rows.
+    first = res.iloc[0]
+    assert first[EST_MID] == 1500
+    assert first["est_gain_usd"] == pytest.approx(500)
+    assert first["est_gain_pct"] == pytest.approx(50.0)
+
+
+def test_estimate_columns_flow_into_totals(sales_df, portfolio_df):
+    pf = portfolio_df.copy()
+    pf[EST_LOW] = [100.0, 200.0, 0, 0, 0, 0, 50.0]
+    pf[EST_MID] = [150.0, 300.0, 0, 0, 0, 0, 75.0]
+    pf[EST_HIGH] = [200.0, 400.0, 0, 0, 0, 0, 100.0]
+    res = value_portfolio(sales_df, pf, valuation_date=VALUATION_DATE)
+    t = portfolio_totals(res)
+    assert t["n_with_estimate"] == 3
+    assert t["est_mid_usd"] == pytest.approx(525.0)
+    assert t["est_low_usd"] == pytest.approx(350.0) and t["est_high_usd"] == pytest.approx(700.0)
+    # Unknown Painter (skipped by the model) still contributes its estimate and cost.
+    assert t["est_cost_usd"] == pytest.approx(95000 + 140000 + 15000)
+    assert t["est_gain_usd"] == pytest.approx(525.0 - 250000)
+    # Model-side totals are unaffected by the estimate columns.
+    assert t["n_valued"] == 6
+
+
+def test_totals_without_estimates_report_zero(sales_df, portfolio_df):
+    t = portfolio_totals(value_portfolio(sales_df, portfolio_df, valuation_date=VALUATION_DATE))
+    assert t["n_with_estimate"] == 0 and t["est_mid_usd"] == 0.0
+    assert math.isnan(t["est_gain_usd"])
 
 
 def test_validate_portfolio_fills_defaults_and_normalizes():

@@ -9,3 +9,6 @@ venv/
 *.egg-info/
 build/
 dist/
+
+# Private collection data (spreadsheet + converted CSV) — never committed
+data/
